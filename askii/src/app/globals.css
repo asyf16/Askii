@@ -88,7 +88,7 @@ body {
 
 @keyframes custom-bounce {
   0%, 100% {
-    transform: translateY(-10%);
+    transform: translateY(-30%);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
   50% {
@@ -99,4 +99,22 @@ body {
 
 .animate-custom-bounce {
   animation: custom-bounce 2s infinite;
+}
+
+@keyframes dot-animation {
+  0%, 20% { opacity: 0; }
+  40%, 100% { opacity: 1; }
+}
+
+.animate-dot {
+  display: inline-block;
+  animation: dot-animation 2s infinite;
+}
+
+.animate-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.animate-dot:nth-child(3) {
+  animation-delay: 0.4s;
 }
