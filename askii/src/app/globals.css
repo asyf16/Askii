@@ -33,6 +33,12 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --good: 142 76% 36%;      /* Green */
+    --good-neutral: 142 24% 90%;
+    --mid: 45 93% 47%;        /* Yellow */
+    --mid-neutral: 45 24% 90%;
+    --bad: 0 84% 60%;         /* Red */
+    --bad-neutral: 0 24% 90%;
   }
   .dark {
     --background: 0 0% 0%;
@@ -59,6 +65,16 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --good: 142 76% 45%;      /* Brighter green */
+    --good-neutral: 142 24% 20%;
+    --mid: 45 93% 55%;        /* Brighter yellow */
+    --mid-neutral: 45 24% 20%;
+    --bad: 0 84% 65%;         /* Brighter red */
+    --bad-neutral: 0 24% 20%;
+  }
+  
+  body {
+    @apply font-montserrat;
   }
 }
 

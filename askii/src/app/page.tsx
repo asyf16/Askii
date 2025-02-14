@@ -26,7 +26,7 @@ export default function Home() {
     <div className="flex flex-col items-start justify-center min-h-screen bg-white dark:bg-black w-screen overflow-hidden relative">
       <div className="absolute inset-0 bg-grid-pattern dark:bg-grid-pattern-dark bg-grid opacity-[0.15]" />
       <CursorGlow />
-      <ThemeToggle />
+      <ThemeToggle className="absolute top-8 sm:right-10 right-6 border border-border z-10 bg-background" />
       <h1 className="text-lg font-bold dark:text-[#e2bd4d] text-amber-500 font-archivo-black absolute top-10 left-10 sm:left-24">
         ASKII.
       </h1>
