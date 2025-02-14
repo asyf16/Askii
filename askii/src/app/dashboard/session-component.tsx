@@ -3,22 +3,13 @@ import { useState } from "react";
 import {
   MessageCircleQuestion,
   Clock,
-  Star,
-  FileUser,
-  FileText,
-  FileJson,
+  // Star,
   Minimize2,
   Maximize2,
-  ChevronDown,
-  ChevronUp,
-  CheckCircle,
-  Circle,
-  CircleX,
+  BadgeCheck
 } from "lucide-react";
-interface Question {
-  Response: string;
-  Rating: string;
-}
+import questionColors from "@/lib/constants";
+import { QuestionComponent } from "./question-component";
 
 const good = 3;
 const mediocre = 2;
@@ -63,106 +54,36 @@ const questions = {
     },
   },
 };
-
-function QuestionComponent({
-  category,
-  categoryName,
-}: {
-  category: Record<string, Question>;
-  categoryName: string;
-}) {
-  const [openQuestions, setOpenQuestions] = useState<Record<string, boolean>>(
-    {}
-  );
-
-  const toggleQuestion = (question: string) => {
-    setOpenQuestions((prev) => ({
-      ...prev,
-      [question]: !prev[question],
-    }));
-  };
-  return (
-    <div>
-      <div className="mb-1 italic text-sm text-muted-foreground">
-        {categoryName}
-      </div>
-      {Object.entries(category).map(([question, { Response, Rating }]) => (
-        <div
-          key={question}
-          className="relative flex flex-col font-montserrat text-xs sm:text-sm mb-2"
-        >
-          <div
-            className={`relative flex flex-row items-center gap-2 font-bold text-md sm:text-lg pr-8 border-2 rounded-xl p-2 shadow-md cursor-pointer transition-colors ${
-              Rating === "Good"
-                ? "bg-[hsl(var(--good-neutral))] border-[hsl(var(--good))] hover:bg-[hsl(var(--good))]/30"
-                : Rating === "Mediocre"
-                ? "bg-[hsl(var(--mid-neutral))] border-[hsl(var(--mid))] hover:bg-[hsl(var(--mid))]/30"
-                : "bg-[hsl(var(--bad-neutral))] border-[hsl(var(--bad))] hover:bg-[hsl(var(--bad))]/30"
-            }`}
-            onClick={() => toggleQuestion(question)}
-          >
-            <div className="flex-shrink-0">
-              {categoryName === "Behavorial" ? (
-                <FileUser className="w-5 h-5 sm:w-6 sm:h-6" />
-              ) : categoryName === "Resume" ? (
-                <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
-              ) : (
-                <FileJson className="w-5 h-5 sm:w-6 sm:h-6" />
-              )}
-            </div>
-            <span className="flex-1">{question}</span>
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              {openQuestions[question] ? <ChevronUp /> : <ChevronDown />}
-            </div>
-          </div>
-          {openQuestions[question] && (
-            <div className="mt-2 p-2 bg-muted-foreground/20 border-border border rounded-lg shadow-sm">
-              <p className="font-semibold">Your response:</p>
-              <p>{Response}</p>
-              <p className="font-semibold mt-1">
-                {Rating === "Good" ? (
-                  <div className="flex flex-row gap-1 text-[hsl(var(--good))]">
-                    <CheckCircle className="w-4 h-4" /> Well-practiced response,
-                    good job!
-                  </div>
-                ) : Rating === "Mediocre" ? (
-                  <div className="flex flex-row  text-[hsl(var(--mid))] gap-1">
-                    <Circle className="w-4 h-4" /> Average response, could be
-                    better.
-                  </div>
-                ) : (
-                  <div className="flex flex-row gap-1 text-[hsl(var(--bad))]">
-                    <CircleX className="w-4 h-4" /> Poor response, needs
-                    improvement.
-                  </div>
-                )}
-              </p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 export function SessionComponent() {
+  const totalQuestions = good + mediocre + bad;
+  const averageRating =
+  totalQuestions > 0 ? Math.floor((good * 10 + mediocre * 5 + bad * 0) / totalQuestions) : 0;
   const [isActive, setIsActive] = useState(false);
   return (
     <div className="w-full">
-      <span className="text-zinc-500 font-montserrat text-sm">
-        {formattedDate}
-      </span>
+      <div className="text-zinc-500 font-montserrat text-sm flex items-center">
+        <span className="mr-2">{formattedDate}</span>
+        <hr className="flex-grow border-t border-zinc-600/30" />
+      </div>
       <div className="relative w-full border px-6 py-4 bg-card rounded-xl shadow-md my-2 border-border">
         <div className="flex flex-row items-center justify-start gap-2 font-montserrat text-xs sm:text-sm">
           <MessageCircleQuestion className="w-4 h-4" />
-          <p>{good + mediocre + bad} questions </p>
+          <p>{totalQuestions} questions </p>
           <Clock className="w-4 h-4" />
           <p>10 minutes </p>
+          <BadgeCheck className="w-4 h-4" />
+          <p>Rating {averageRating}/10 </p>
         </div>
         <div className="flex flex-row items-center justify-start gap-2 font-montserrat text-sm sm:text-md font-bold pt-2 mb-2">
           <p>
             {good} Good, {mediocre} Mediocre, {bad} Bad
           </p>
-          <div className="w-6 h-6 bg-red-500 rounded-full sm:inline-block hidden"></div>
+          <div
+            className={`w-6 h-6 rounded-full sm:inline-block hidden ${
+              questionColors[averageRating
+              ]
+            }`}
+          ></div>
         </div>
         <div
           className="p-4 absolute z-10 left-[calc(100%-65px)] top-2 hover:text-primary"
