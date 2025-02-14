@@ -24,7 +24,7 @@ body {
     --accent-foreground: 36 85% 40%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 36 10% 90%;
+    --border: 36 10% 70%;
     --input: 36 10% 90%;
     --ring: 36 85% 40%;
     --chart-1: 12 76% 61%;
@@ -52,7 +52,7 @@ body {
     --secondary: 45 80% 10%;
     --secondary-foreground: 45 80% 59%;
     --muted: 45 80% 10%;
-    --muted-foreground: 45 5% 65%;
+    --muted-foreground: 45 5% 45%;
     --accent: 45 80% 10%;
     --accent-foreground: 45 80% 59%;
     --destructive: 0 62.8% 30.6%;
@@ -65,11 +65,11 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --good: 142 76% 45%;      /* Brighter green */
+    --good: 142 76% 25%;      /* Brighter green */
     --good-neutral: 142 24% 20%;
-    --mid: 45 93% 55%;        /* Brighter yellow */
+    --mid: 45 93% 35%;        /* Brighter yellow */
     --mid-neutral: 45 24% 20%;
-    --bad: 0 84% 65%;         /* Brighter red */
+    --bad: 0 84% 45%;         /* Brighter red */
     --bad-neutral: 0 24% 20%;
   }
   
