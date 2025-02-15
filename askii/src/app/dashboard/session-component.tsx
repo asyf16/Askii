@@ -61,28 +61,25 @@ export function SessionComponent() {
   const mediocreQuestions = Object.values(questions)
     .flatMap(Object.values)
     .filter((q) => q.Rating === "Mediocre").length;
-  const badQuestions = Object.values(questions)
-    .flatMap(Object.values)
-    .filter((q) => q.Rating === "Bad").length;
+  // const badQuestions = Object.values(questions)
+  //   .flatMap(Object.values)
+  //   .filter((q) => q.Rating === "Bad").length;
 
   const averageRating = totalQuestions > 0 ? Math.floor(
     (goodQuestions * 10 + mediocreQuestions * 5) / totalQuestions
   ) : 0;
 
   return (
+    <div className="w-full">
+    <div className="text-zinc-500 font-montserrat text-sm flex items-center mb-1">
+      <span className="mr-2">{formattedDate}</span>
+      <hr className="flex-grow border-t border-zinc-600/30" />
+    </div>
     <div className="w-full bg-card rounded-xl shadow-lg border border-border overflow-hidden transition-all font-montserrat duration-300 ease-in-out">
       <div className="p-6 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">{formattedDate}</span>
-          <div className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 rounded-full" style={{ backgroundColor: `#${questionColors[averageRating]}` }}
-            ></div>
-            <span className="font-medium">Rating: {averageRating}/10</span>
-          </div>
-        </div>
 
-        <div className="flex flex-wrap gap-4 text-sm">
+        <div className="flex flex-wrap gap-2 text-sm justify-between">
+          <div className="flex flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <MessageCircleQuestion className="w-5 h-5" aria-hidden="true" />
             <span>{totalQuestions} questions</span>
@@ -91,12 +88,18 @@ export function SessionComponent() {
             <Clock className="w-5 h-5" aria-hidden="true" />
             <span>{time} minutes</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="items-center gap-2 sm:flex hidden">
             <BadgeCheck className="w-5 h-5" aria-hidden="true" />
             <span>
-              {goodQuestions} Good, {mediocreQuestions} Mediocre, {badQuestions}{" "}
-              Bad
+              {goodQuestions} Good
             </span>
+          </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full" style={{ backgroundColor: `#${questionColors[averageRating]}` }}
+            ></div>
+            <span className="font-semibold">Rating: {averageRating}/10</span>
           </div>
         </div>
 
@@ -112,7 +115,7 @@ export function SessionComponent() {
         </div> */}
 
         <button
-          className="w-full flex items-center justify-between px-4 py-2 bg-foreground/10 border rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-foreground/30 hover:bg-foreground/15"
+          className="w-full flex items-center justify-between px-4 py-2 bg-foreground/10 border rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/30 hover:bg-foreground/15"
           onClick={() => setIsActive(!isActive)}
           aria-expanded={isActive}
           aria-controls="session-details"
@@ -144,6 +147,7 @@ export function SessionComponent() {
           />
         </div>
       )}
+    </div>
     </div>
   );
 }

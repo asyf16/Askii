@@ -6,8 +6,7 @@ import { Search } from "lucide-react";
 import { SessionComponent } from "./session-component";
 import { AppSidebar } from "@/components/side-bar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { StartInterview } from "./start-interview";
-
+import InterviewDialog from "../interview/interview-dialog";
 export default function Dashboard() {
   const mid = [
     { category: "Mediocre", questions: 275, fill: "hsl(var(--mid))" },
@@ -41,7 +40,7 @@ export default function Dashboard() {
               </h1>
             </div>
             <div className="flex flex-row items-center gap-4 absolute right-3">
-              <div className="relative">
+              <div className="relative sm:flex hidden">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   className="pl-10 bg-muted-foreground/10 border-border placeholder:text-xs sm:placeholder:text-sm focus:border-primary w-[180px] sm:w-[250px] md:w-[330px]"
@@ -77,10 +76,10 @@ export default function Dashboard() {
               </div>
             </div>
             <SessionComponent />
+            <InterviewDialog />
           </main>
         </div>
       </div>
-      <StartInterview />
     </SidebarProvider>
   );
 }
