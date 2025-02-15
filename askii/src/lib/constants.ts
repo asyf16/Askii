@@ -1,15 +1,16 @@
 const questionColors: { [key: number]: string } = {
-    10: "bg-green-500",  // Best
-    9: "bg-green-400",
-    8: "bg-lime-400",
-    7: "bg-yellow-400",
-    6: "bg-amber-500",
-    5: "bg-orange-500",
-    4: "bg-orange-600",
-    3: "bg-red-500",
-    2: "bg-red-600",
-    1: "bg-red-700",
-    0: "bg-red-800",     // Worst
-};
-
-export default questionColors;
+    10: "22c55e", // Green (Best)
+    9: "4ade80",  
+    8: "a3e635",  
+    7: "facc15",  
+    6: "fb923c",  
+    5: "f97316", // Orange (Middle)
+    4: "ea580c",  
+    3: "dc2626",  
+    2: "b91c1c",  
+    1: "991b1b",  
+    0: "7f1d1d", // Red (Worst)
+  };
+  
+  export default questionColors;
+  

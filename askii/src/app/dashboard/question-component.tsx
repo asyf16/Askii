@@ -6,7 +6,6 @@ import {
   FileText,
   FileJson,
   ChevronDown,
-  ChevronUp,
   CheckCircle,
   Circle,
   CircleX,
@@ -45,7 +44,7 @@ export function QuestionComponent({
             className="relative flex flex-col font-montserrat text-xs sm:text-sm mb-2"
           >
             <div
-              className={`relative flex flex-row items-center gap-2 font-bold text-md sm:text-lg pr-8 border-2 rounded-xl p-2 shadow-md cursor-pointer transition-colors ${
+              className={`relative flex flex-row items-center gap-2 font-bold text-md sm:text-lg pr-8 border rounded-xl p-2 shadow-md cursor-pointer transition-colors ${
                 Rating === "Good"
                   ? "bg-[hsl(var(--good-neutral))] border-[hsl(var(--good))]/70 hover:bg-[hsl(var(--good))]/30"
                   : Rating === "Mediocre"
@@ -65,11 +64,15 @@ export function QuestionComponent({
               </div>
               <span className="flex-1">{question}</span>
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                {openQuestions[question] ? <ChevronUp /> : <ChevronDown />}
+              <ChevronDown
+              className={`transform transition-transform duration-200 ${
+                openQuestions[question] ? "rotate-180" : ""
+              }`}
+            />
               </div>
             </div>
             {openQuestions[question] && (
-              <div className="mt-2 p-2 bg-muted-foreground/20 border-border border rounded-lg shadow-sm">
+              <div className="mt-2 p-3 bg-muted-foreground/10 border-border border rounded-lg shadow-sm">
                 <p className="font-semibold">Your response:</p>
                 <p>{Response}</p>
                 <p className="font-semibold mt-1">

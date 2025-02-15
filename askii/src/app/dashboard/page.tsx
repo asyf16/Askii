@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { SessionComponent } from "./session-component";
 import { AppSidebar } from "@/components/side-bar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { StartInterview } from "./start-interview";
 
 export default function Dashboard() {
   const mid = [
@@ -25,7 +26,7 @@ export default function Dashboard() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-muted-foreground/5 w-full flex">
+      <div className="min-h-screen bg-muted-foreground/5 w-full flex pb-8">
         <AppSidebar />
   
         <div className="flex-1 flex flex-col">
@@ -79,6 +80,7 @@ export default function Dashboard() {
           </main>
         </div>
       </div>
+      <StartInterview />
     </SidebarProvider>
   );
 }

@@ -3,25 +3,11 @@ import { useState } from "react";
 import {
   MessageCircleQuestion,
   Clock,
-  // Star,
-  Minimize2,
-  Maximize2,
-  BadgeCheck
+  BadgeCheck,
+  ChevronDown,
 } from "lucide-react";
-import questionColors from "@/lib/constants";
 import { QuestionComponent } from "./question-component";
-
-const good = 3;
-const mediocre = 2;
-const bad = 1;
-const date = new Date();
-const formattedDate = date.toLocaleDateString("en-US", {
-  hour: "2-digit",
-  minute: "2-digit",
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
+import questionColors from "@/lib/constants";
 
 const questions = {
   Behavorial: {
@@ -54,60 +40,110 @@ const questions = {
     },
   },
 };
+
 export function SessionComponent() {
-  const totalQuestions = good + mediocre + bad;
-  const averageRating =
-  totalQuestions > 0 ? Math.floor((good * 10 + mediocre * 5 + bad * 0) / totalQuestions) : 0;
   const [isActive, setIsActive] = useState(false);
+  const date = new Date();
+  const formattedDate = date.toLocaleDateString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const time:number = 10;
+
+  const totalQuestions = Object.values(questions).flatMap(Object.values).length;
+  const goodQuestions = Object.values(questions)
+    .flatMap(Object.values)
+    .filter((q) => q.Rating === "Good").length;
+  const mediocreQuestions = Object.values(questions)
+    .flatMap(Object.values)
+    .filter((q) => q.Rating === "Mediocre").length;
+  const badQuestions = Object.values(questions)
+    .flatMap(Object.values)
+    .filter((q) => q.Rating === "Bad").length;
+
+  const averageRating = totalQuestions > 0 ? Math.floor(
+    (goodQuestions * 10 + mediocreQuestions * 5) / totalQuestions
+  ) : 0;
+
   return (
-    <div className="w-full">
-      <div className="text-zinc-500 font-montserrat text-sm flex items-center">
-        <span className="mr-2">{formattedDate}</span>
-        <hr className="flex-grow border-t border-zinc-600/30" />
-      </div>
-      <div className="relative w-full border px-6 py-4 bg-card rounded-xl shadow-md my-2 border-border">
-        <div className="flex flex-row items-center justify-start gap-2 font-montserrat text-xs sm:text-sm">
-          <MessageCircleQuestion className="w-4 h-4" />
-          <p>{totalQuestions} questions </p>
-          <Clock className="w-4 h-4" />
-          <p>10 minutes </p>
-          <BadgeCheck className="w-4 h-4" />
-          <p>Rating {averageRating}/10 </p>
-        </div>
-        <div className="flex flex-row items-center justify-start gap-2 font-montserrat text-sm sm:text-md font-bold pt-2 mb-2">
-          <p>
-            {good} Good, {mediocre} Mediocre, {bad} Bad
-          </p>
-          <div
-            className={`w-6 h-6 rounded-full sm:inline-block hidden ${
-              questionColors[averageRating
-              ]
-            }`}
-          ></div>
-        </div>
-        <div
-          className="p-4 absolute z-10 left-[calc(100%-65px)] top-2 hover:text-primary"
-          onClick={() => setIsActive(!isActive)}
-        >
-          {isActive ? <Minimize2 /> : <Maximize2 />}
-        </div>
-        {isActive && (
-          <div>
-            <QuestionComponent
-              category={questions.Behavorial}
-              categoryName="Behavorial"
-            />
-            <QuestionComponent
-              category={questions.Resume}
-              categoryName="Resume"
-            />
-            <QuestionComponent
-              category={questions.Leetcode}
-              categoryName="Leetcode"
-            />
+    <div className="w-full bg-card rounded-xl shadow-lg border border-border overflow-hidden transition-all font-montserrat duration-300 ease-in-out">
+      <div className="p-6 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">{formattedDate}</span>
+          <div className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full" style={{ backgroundColor: `#${questionColors[averageRating]}` }}
+            ></div>
+            <span className="font-medium">Rating: {averageRating}/10</span>
           </div>
-        )}
+        </div>
+
+        <div className="flex flex-wrap gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <MessageCircleQuestion className="w-5 h-5" aria-hidden="true" />
+            <span>{totalQuestions} questions</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5" aria-hidden="true" />
+            <span>{time} minutes</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <BadgeCheck className="w-5 h-5" aria-hidden="true" />
+            <span>
+              {goodQuestions} Good, {mediocreQuestions} Mediocre, {badQuestions}{" "}
+              Bad
+            </span>
+          </div>
+        </div>
+
+        {/* <div className="w-full bg-primary/10 h-2 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary"
+            style={{ width: `${(averageRating / 10) * 100}%` }}
+            role="progressbar"
+            aria-valuenow={averageRating}
+            aria-valuemin={0}
+            aria-valuemax={10}
+          ></div>
+        </div> */}
+
+        <button
+          className="w-full flex items-center justify-between px-4 py-2 bg-foreground/10 border rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-foreground/30 hover:bg-foreground/15"
+          onClick={() => setIsActive(!isActive)}
+          aria-expanded={isActive}
+          aria-controls="session-details"
+        >
+          <span>{isActive ? "Hide Details" : "View Details"}</span>
+          <ChevronDown
+              className={`transform transition-transform duration-200 ${
+                isActive ? "rotate-180" : ""
+              }`}
+            />
+        </button>
       </div>
+      {isActive && (
+        <div
+          id="session-details"
+          className={`p-6 bg-background/50 border-t border-border space-y-3 transition-all duration-300 ease-in-out`}
+        >
+          <QuestionComponent
+            category={questions.Behavorial}
+            categoryName="Behavorial"
+          />
+          <QuestionComponent
+            category={questions.Resume}
+            categoryName="Resume"
+          />
+          <QuestionComponent
+            category={questions.Leetcode}
+            categoryName="Leetcode"
+          />
+        </div>
+      )}
     </div>
   );
 }
