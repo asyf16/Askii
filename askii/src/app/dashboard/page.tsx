@@ -7,6 +7,7 @@ import { SessionComponent } from "./session-component";
 import { AppSidebar } from "@/components/side-bar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import InterviewDialog from "../interview/interview-dialog";
+import { useState } from "react";
 export default function Dashboard() {
   const mid = [
     { category: "Mediocre", questions: 275, fill: "hsl(var(--mid))" },
@@ -23,10 +24,12 @@ export default function Dashboard() {
     { category: "Other", questions: 200, fill: "hsl(var(--bad-neutral))" },
   ];
 
+  const [openDialog, setOpenDialog] = useState(false);
+
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-muted-foreground/5 w-full flex pb-8">
-        <AppSidebar />
+        <AppSidebar setOpenDialog={setOpenDialog}/>
   
         <div className="flex-1 flex flex-col">
           <div className="fixed top-0 left-0 bg-background/20 backdrop-blur-sm w-full border-b border-border h-[64px] flex flex-row items-center justify-between drop-shadow-md z-20 pl-[260px]">
@@ -76,7 +79,7 @@ export default function Dashboard() {
               </div>
             </div>
             <SessionComponent />
-            <InterviewDialog />
+            <InterviewDialog openDialog={openDialog} onOpenChange={setOpenDialog}/>
           </main>
         </div>
       </div>

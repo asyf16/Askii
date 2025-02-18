@@ -8,7 +8,11 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 
-export function AppSidebar() {
+interface SidebarProps {
+  setOpenDialog: (open: boolean) => void;
+}
+
+export function AppSidebar({ setOpenDialog }: SidebarProps) {  
   return (
     <Sidebar collapsible="icon" className="border-r mt-[65px] font-montserrat">
       <SidebarContent className="">
@@ -46,11 +50,11 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/interview">
+            <SidebarMenuButton asChild >
+              <div onClick={() => setOpenDialog(true)} className="cursor-pointer">
                 <MessageCircleQuestion className="ml-2 "/>
                 <span>Start Interview</span>
-              </Link>
+                </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
