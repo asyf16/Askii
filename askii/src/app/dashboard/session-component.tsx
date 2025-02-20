@@ -27,10 +27,11 @@ const questions = {
         "I was in a team of 5 people and we were able to complete the project in 2 days.",
       Rating: "Good",
     },
+    
     "Tell me about a project on your resume": {
       Response:
         "I made a website for a local business using HTML, CSS, and JavaScript.",
-      Rating: "Bad",
+      Rating: "Good",
     },
   },
   Leetcode: {
@@ -103,16 +104,16 @@ export function SessionComponent() {
           </div>
         </div>
 
-        {/* <div className="w-full bg-primary/10 h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-primary/10 h-2 rounded-full overflow-hidden">
           <div
             className="h-full bg-primary"
-            style={{ width: `${(averageRating / 10) * 100}%` }}
+            style={{ width: `${(averageRating / 10) * 100}%`,  backgroundColor: `#${questionColors[averageRating]}` }}
             role="progressbar"
             aria-valuenow={averageRating}
             aria-valuemin={0}
             aria-valuemax={10}
           ></div>
-        </div> */}
+        </div>
 
         <button
           className="w-full flex items-center justify-between px-4 py-2 bg-foreground/10 border rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/30 hover:bg-foreground/15"
