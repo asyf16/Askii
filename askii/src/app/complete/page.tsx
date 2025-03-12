@@ -21,14 +21,30 @@ import {
 } from "@/components/ui/tooltip";
 import { useSearchParams } from "next/navigation";
 
+interface UserRatings {
+  notes?: string;
+  rating: number;
+  save: boolean;
+}
+
 export default function Complete() {
   const searchParams = useSearchParams();
   const time = searchParams.get("time");
+
   const [videoChunks, setVideoChunks] = useState<string[]>([]);
-  const [selected, setSelected] = useState(0);
-  const question = "Question 1: Describe one thing on your resume";
-  const category = "Behavioral";
+  const questions = [
+    "Describe one thing on your resume",
+    "Tell me about yourself",
+    "Tell me about this project",
+  ];
+  const category = ["Behavioral", "Behavorial", "Resume"];
   const [page, setPage] = useState(0);
+
+  const [selected, setSelected] = useState(-1);
+
+  const [userRatings, setUserRatings] = useState<UserRatings[]>(
+    Array(questions.length).fill({ rating: -1, notes: "", save: false })
+  );
 
   useEffect(() => {
     const storedChunks = localStorage.getItem("videoChunks");
@@ -37,13 +53,37 @@ export default function Complete() {
     }
   }, []);
 
+  const handleRatingChange = (rating: number) => {
+    setSelected(rating);
+    setUserRatings((prev) => {
+      const updatedRatings = [...prev];
+      updatedRatings[page] = { ...updatedRatings[page], rating };
+      return updatedRatings;
+    });
+  };
+
+  const handleNotesChange = (notes: string) => {
+    setUserRatings((prev) => {
+      const updatedRatings = [...prev];
+      updatedRatings[page] = { ...updatedRatings[page], notes };
+      return updatedRatings;
+    });
+  };
+
+  useEffect(() => {
+    setSelected(userRatings[page]?.rating ?? -1);
+  }, [page, userRatings]);
+
   return (
     <div className="flex flex-col justify-center w-full items-center px-4">
-      <div className="max-w-4xl my-8 shadow-lg border border-border rounded-xl overflow-hidden font-montserrat">
+      <div
+        className="max-w-4xl my-8 shadow-lg border border-border rounded-xl overflow-hidden font-montserrat"
+        key={page}
+      >
         <div className="pb-0 space-y-2 p-6">
           <div className="flex items-center justify-between">
             <Badge variant="outline" className="text-sm font-medium px-3 py-1">
-              {category}
+              {category[page]}
             </Badge>
             <div className="flex flex-row gap-2">
               <TooltipProvider>
@@ -67,14 +107,16 @@ export default function Complete() {
               <ThemeToggle className="border border-border/50" />
             </div>
           </div>
-          <h2 className="sm:text-2xl text-l font-bold">{question}</h2>
+          <h2 className="sm:text-2xl text-l font-bold">
+            Q{page + 1}: {questions[page]}
+          </h2>
         </div>
 
         <div className="pt-4 pb-6 px-6">
           <div className="relative w-full aspect-[7/4] rounded-xl bg-black/95 dark:bg-black flex items-center justify-center overflow-hidden group">
-          <video controls className="h-full w-full object-cover" key={page}>
-                <source src={videoChunks[page]} type="video/webm" />
-              </video>
+            <video controls className="h-full w-full object-cover">
+              <source src={videoChunks[page]} type="video/webm" />
+            </video>
           </div>
           <span className="text-xs p-0 mt-1">
             {time ? new Date(time).toLocaleString() : "Unknown"}
@@ -82,38 +124,40 @@ export default function Complete() {
           <Textarea
             placeholder="Leave some notes (optional)"
             className="min-h-[70px] resize-none focus-visible:ring-primary my-3"
+            value={userRatings[page]?.notes || ""}
+            onChange={(e) => handleNotesChange(e.target.value)}
           />
 
           <div className="grid grid-cols-3 gap-4">
             <Button
               variant="outline"
-              className={`py-6 bg-green-100 hover:bg-green-200 text-green-700 border-green-300 
-              dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-300 dark:border-green-800
+              className={`py-6 bg-red-100 hover:bg-red-200 text-red-700 border-red-300
+              dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-300 dark:border-red-800
               ${
-                selected === 1 &&
-                "ring-2 ring-green-500 dark:ring-green-400 bg-green-200 dark:bg-green-800/50 font-semibold"
+                selected === 0 &&
+                "ring-2 ring-red-500 dark:ring-red-400 bg-red-200 dark:bg-red-800/50 font-semibold"
               }
             `}
               size="lg"
               onClick={() => {
-                setSelected(1);
+                handleRatingChange(0);
               }}
             >
-              <ThumbsUp className="h-5 w-5" />
-              Good
+              <ThumbsDown className="h-5 w-5" />
+              Bad
             </Button>
             <Button
               variant="outline"
               className={`py-6 bg-amber-100 hover:bg-amber-200 text-amber-700 border-amber-300
               dark:bg-amber-900/30 dark:hover:bg-amber-800/50 dark:text-amber-300 dark:border-amber-600/50
               ${
-                selected === 2 &&
+                selected === 1 &&
                 "ring-2 ring-amber-500 dark:ring-amber-400 bg-amber-200 dark:bg-amber-800/50 font-semibold"
               }
             `}
               size="lg"
               onClick={() => {
-                setSelected(2);
+                handleRatingChange(1);
               }}
             >
               <MessageCircleQuestion className="h-5 w-5" />
@@ -121,20 +165,20 @@ export default function Complete() {
             </Button>
             <Button
               variant="outline"
-              className={`py-6 bg-red-100 hover:bg-red-200 text-red-700 border-red-300
-              dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-300 dark:border-red-800
+              className={`py-6 bg-green-100 hover:bg-green-200 text-green-700 border-green-300 
+              dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-300 dark:border-green-800
               ${
-                selected === 3 &&
-                "ring-2 ring-red-500 dark:ring-red-400 bg-red-200 dark:bg-red-800/50 font-semibold"
+                selected === 2 &&
+                "ring-2 ring-green-500 dark:ring-green-400 bg-green-200 dark:bg-green-800/50 font-semibold"
               }
             `}
               size="lg"
               onClick={() => {
-                setSelected(3);
+                handleRatingChange(2);
               }}
             >
-              <ThumbsDown className="h-5 w-5" />
-              Bad
+              <ThumbsUp className="h-5 w-5" />
+              Good
             </Button>
           </div>
         </div>
@@ -150,15 +194,27 @@ export default function Complete() {
             <ArrowLeft className="h-4 w-4" />
             Previous
           </Button>
-          <Button
-            className="bg-foreground hover:bg-background border border-border hover:text-foreground text-background"
-            size="lg"
-            disabled={selected === 0 || page >= videoChunks.length-1}
-            onClick={() => setPage(page + 1)}
-          >
-            Next
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          {page >= videoChunks.length - 1 ? (
+            <Button
+              className="bg-foreground hover:bg-background border border-border hover:text-foreground text-background"
+              size="lg"
+              disabled={selected === -1}
+              onClick={() => setPage(0)}
+            >
+              Finish
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              className="bg-foreground hover:bg-background border border-border hover:text-foreground text-background"
+              size="lg"
+              disabled={selected === -1}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
