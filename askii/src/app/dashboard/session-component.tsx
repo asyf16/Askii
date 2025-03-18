@@ -9,40 +9,24 @@ import {
 import { QuestionComponent } from "./question-component";
 import questionColors from "@/lib/constants";
 
-const questions = {
-  Behavorial: {
-    "Why do you want to join us?": {
-      Response:
-        "I want to join because I want to learn more about the company and the culture.",
-      Rating: "Good",
-    },
-    "Why should we hire you?": {
-      Response: "I am a hard worker and I am willing to learn.",
-      Rating: "Mediocre",
-    },
-  },
-  Resume: {
-    "Tell me about an experience you had when you were in a team": {
-      Response:
-        "I was in a team of 5 people and we were able to complete the project in 2 days.",
-      Rating: "Good",
-    },
-    
-    "Tell me about a project on your resume": {
-      Response:
-        "I made a website for a local business using HTML, CSS, and JavaScript.",
-      Rating: "Good",
-    },
-  },
-  Leetcode: {
-    "What is the time complexity of the following code?": {
-      Response: "The time complexity is O(n^2).",
-      Rating: "Bad",
-    },
-  },
-};
+interface QuestionData {
+  Response: string;
+  Rating: string;
+}
 
-export function SessionComponent() {
+interface Questions {
+  [key: string]: {
+    [key: string]: QuestionData;
+  };
+}
+
+interface SessionComponentProps {
+  questions: Questions; 
+}
+
+export function SessionComponent({
+  questions,
+}: SessionComponentProps) {
   const [isActive, setIsActive] = useState(false);
   const date = new Date();
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -62,9 +46,6 @@ export function SessionComponent() {
   const mediocreQuestions = Object.values(questions)
     .flatMap(Object.values)
     .filter((q) => q.Rating === "Mediocre").length;
-  // const badQuestions = Object.values(questions)
-  //   .flatMap(Object.values)
-  //   .filter((q) => q.Rating === "Bad").length;
 
   const averageRating = totalQuestions > 0 ? Math.floor(
     (goodQuestions * 10 + mediocreQuestions * 5) / totalQuestions

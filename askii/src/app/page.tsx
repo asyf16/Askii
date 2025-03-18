@@ -5,9 +5,10 @@ import Streamgraph from "../components/stream-graph/streamgraph";
 import { useEffect, useState } from "react";
 import useForceUpdate from "../components/stream-graph/useForceUpdate";
 import { CursorGlow } from "@/components/cursor-glow";
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from "@auth0/nextjs-auth0";
 
 export default function Home() {
+  const redirectAfterLogin = "/dashboard"; // Change this to your desired redirect path
   const { width, height } = useWindowSize();
   const [isMounted, setIsMounted] = useState(false);
   const forceUpdate = useForceUpdate();
@@ -53,7 +54,7 @@ export default function Home() {
         <div className="flex flex-row gap-4 w-full">
           {!user ? (
             <>
-              <a href="/auth/login">
+              <a href={`/auth/login?returnTo=${encodeURIComponent(redirectAfterLogin)}`}>
                 <button className="mt-2 group px-6 py-2 rounded-3xl bg-black border-2 border-black text-white dark:bg-white dark:border-white dark:text-black font-medium hover:bg-white/50 dark:hover:bg-black/50 transition-all relative overflow-hidden">
                   <span className="inline-flex transition-transform duration-300 group-hover:-translate-x-20">
                     Log in
@@ -63,7 +64,7 @@ export default function Home() {
                   </span>
                 </button>
               </a>
-              <a href="/auth/login?screen_hint=signup">
+              <a href={`/auth/login?screen_hint=signup&returnTo=${encodeURIComponent(redirectAfterLogin)}`}>
                 <button className="mt-2 group px-6 py-2 rounded-3xl bg-white/50 border-2 border-black text-black dark:bg-black/50 dark:border-white dark:text-white font-medium hover:bg-black dark:hover:bg-white transition-all relative overflow-hidden">
                   <span className="inline-flex transition-transform duration-300 group-hover:-translate-x-20">
                     Sign up
@@ -75,21 +76,30 @@ export default function Home() {
               </a>
             </>
           ) : (
-            <a href="/auth/logout">
-              <button className="mt-2 group px-6 py-2 rounded-3xl bg-black border-2 border-black text-white dark:bg-white dark:border-white dark:text-black font-medium hover:bg-white/50 dark:hover:bg-black/50 transition-all relative overflow-hidden">
-                <span className="inline-flex transition-transform duration-300 group-hover:-translate-x-20">
-                  Logout
-                </span>
-                <span className="absolute right-0 translate-x-full transition-transform duration-300 group-hover:translate-x-[-40px]">
-                  👋
-                </span>
-              </button>
-            </a>
+            <>
+              <a href="/dashboard">
+                <button className="mt-2 group px-6 py-2 rounded-3xl bg-black border-2 border-black text-white dark:bg-white dark:border-white dark:text-black font-medium hover:bg-white/50 dark:hover:bg-black/50 transition-all relative overflow-hidden">
+                  <span className="inline-flex transition-transform duration-300 group-hover:-translate-x-20">
+                    Enter
+                  </span>
+                  <span className="absolute right-0 translate-x-full transition-transform duration-300 group-hover:translate-x-[-40px]">
+                    👋
+                  </span>
+                </button>
+              </a>
+              <a href="/auth/logout">
+                <button className="mt-2 group px-6 py-2 rounded-3xl bg-white/50 border-2 border-black text-black dark:bg-black/50 dark:border-white dark:text-white font-medium hover:bg-black dark:hover:bg-white transition-all relative overflow-hidden">
+                  <span className="inline-flex transition-transform duration-300 group-hover:-translate-x-20">
+                    Log out
+                  </span>
+                  <span className="absolute right-0 translate-x-full transition-transform duration-300 group-hover:translate-x-[-40px]">
+                    ✨
+                  </span>
+                </button>{" "}
+              </a>
+            </>
           )}
         </div>
-        <a href="/auth/logout">
-          <button className="border border-black">logout</button>
-        </a>
       </div>
       {isMounted && width && height ? (
         <Streamgraph width={width} height={height + 250} />
