@@ -38,6 +38,7 @@ model Question {
 
 model RatingCollection {
   id       String @id @default(uuid())
+  category Category
   prompt   String
   response String
   rating   Rating

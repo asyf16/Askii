@@ -35,7 +35,7 @@ export function AppSidebar({ setOpenDialog }: SidebarProps) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/dashboard">
+              <Link href="/dashboard?help=true">
                 <HelpCircle className="ml-2"/>
                 <span>Help</span>
               </Link>
@@ -43,7 +43,7 @@ export function AppSidebar({ setOpenDialog }: SidebarProps) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/dashboard">
+              <Link href="/dashboard?settings=true">
                 <Settings className="ml-2"/>
                 <span>Settings</span>
               </Link>

@@ -8,27 +8,15 @@ import {
 } from "lucide-react";
 import { QuestionComponent } from "./question-component";
 import questionColors from "@/lib/constants";
-
-interface QuestionData {
-  Response: string;
-  Rating: string;
-}
-
-interface Questions {
-  [key: string]: {
-    [key: string]: QuestionData;
-  };
-}
+import { SessionType } from "./dashboard";
 
 interface SessionComponentProps {
-  questions: Questions; 
+  session: SessionType; 
 }
 
-export function SessionComponent({
-  questions,
-}: SessionComponentProps) {
+export function SessionComponent({ session }: SessionComponentProps) {
   const [isActive, setIsActive] = useState(false);
-  const date = new Date();
+  const date = new Date(session.date);
   const formattedDate = date.toLocaleDateString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -37,15 +25,35 @@ export function SessionComponent({
     year: "numeric",
   });
 
+  function transformQuestions(rawQuestions: any[]) {
+    const transformed: { [category: string]: { [prompt: string]: { Response: string; Rating: string } } } = {};
+    console.log(rawQuestions);
+      rawQuestions.forEach((q) => {
+      const { category, prompt, response, rating } = q;
+  
+      if (!transformed[category]) {
+        transformed[category] = {};
+      }
+        transformed[category][prompt] = {
+        Response: response,
+        Rating: rating,
+      };
+    });
+  
+    return transformed;
+  }
+
+  const questions = transformQuestions(session.question);
+
   const time:number = 10;
 
   const totalQuestions = Object.values(questions).flatMap(Object.values).length;
   const goodQuestions = Object.values(questions)
     .flatMap(Object.values)
-    .filter((q) => q.Rating === "Good").length;
+    .filter((q) => q.Rating === "GOOD").length;
   const mediocreQuestions = Object.values(questions)
     .flatMap(Object.values)
-    .filter((q) => q.Rating === "Mediocre").length;
+    .filter((q) => q.Rating === "MEDIOCRE").length;
 
   const averageRating = totalQuestions > 0 ? Math.floor(
     (goodQuestions * 10 + mediocreQuestions * 5) / totalQuestions
@@ -111,24 +119,19 @@ export function SessionComponent({
         </button>
       </div>
       {isActive && (
-        <div
-          id="session-details"
-          className={`p-6 bg-background/50 border-t border-border space-y-3 transition-all duration-300 ease-in-out`}
-        >
-          <QuestionComponent
-            category={questions.Behavorial}
-            categoryName="Behavorial"
-          />
-          <QuestionComponent
-            category={questions.Resume}
-            categoryName="Resume"
-          />
-          <QuestionComponent
-            category={questions.Leetcode}
-            categoryName="Leetcode"
-          />
-        </div>
-      )}
+          <div
+            id="session-details"
+            className={`p-6 bg-background/50 border-t border-border space-y-3 transition-all duration-300 ease-in-out`}
+          >
+            {Object.entries(questions).map(([categoryName, categoryQuestions]) => (
+              <QuestionComponent
+                key={categoryName}
+                category={categoryQuestions}
+                categoryName={categoryName}
+              />
+            ))}
+          </div>
+        )}
     </div>
     </div>
   );

@@ -21,7 +21,7 @@ export async function GET(req: Request) {
   
       const userId = user.id;
 
-  const sessions = await prisma.session.findMany({where: {userId}});
+  const sessions = await prisma.session.findMany({where: {userId}, include: {question: true}});
   return NextResponse.json(sessions);
 }
 

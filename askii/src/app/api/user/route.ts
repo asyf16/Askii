@@ -9,7 +9,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { email, name, auth0_id } = await req.json();
+  const { email, auth0_id, name } = await req.json();
 
   let user = await prisma.user.findUnique({
     where: { auth0_id },
@@ -17,7 +17,12 @@ export async function POST(req: Request) {
 
   if (!user) {
     user = await prisma.user.create({
-      data: { email, name, auth0_id },
+      data: { email, auth0_id, name: name || null },
+    });
+  }else {
+    user = await prisma.user.update({
+      where: { auth0_id },
+      data: { name: name || user.name },
     });
   }
   return NextResponse.json(user);
