@@ -32,6 +32,7 @@ model Question {
   prompt     String
   response   String
   rating     Rating
+  notes      String?
   session   Session @relation(fields: [sessionId], references: [id])
   sessionId String
 }

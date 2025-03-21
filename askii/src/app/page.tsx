@@ -27,11 +27,15 @@ export default function Home() {
   }, [forceUpdate]);
 
   return (
-    <div className="flex flex-col items-start justify-center min-h-screen bg-white dark:bg-black w-screen overflow-hidden relative">
+    <div className="relative flex flex-col items-start justify-center min-h-screen bg-white dark:bg-black w-screen overflow-hidden relative">
       <div className="absolute inset-0 bg-grid-pattern dark:bg-grid-pattern-dark bg-grid opacity-[0.15]" />
       <CursorGlow />
       <ThemeToggle className="absolute top-8 sm:right-10 right-6 border border-border z-10 bg-background" />
-      <h1 className="text-lg font-bold dark:text-[#e2bd4d] text-amber-500 font-archivo-black absolute top-10 left-10 sm:left-24">
+      <img
+        src="./assets/logo.png"
+        className="h-[25px] w-[25px] absolute top-10 left-10 sm:left-24"
+      ></img>
+      <h1 className="text-lg font-bold dark:text-[#e2bd4d] text-amber-500 font-archivo-black absolute top-10 left-[68px] sm:left-[123px]">
         ASKII.
       </h1>
       <div className="flex flex-col items-start justify-center absolute top-[25%] left-10 sm:left-24 space-y-6 animate-fade-in z-10">
@@ -43,7 +47,7 @@ export default function Home() {
             <span className="animate-dot">.</span>
           </span>
         </h1>
-        <p className="sm:text-2xl text-xl dark:text-[#e2bd4d] text-amber-500 max-w-md mx-auto font-montserrat">
+        <p className="sm:text-2xl text-lg dark:text-[#e2bd4d] text-amber-500 max-w-md mx-auto font-montserrat">
           <span className="bg-amber-500 text-white dark:bg-yellow-500 dark:text-black p-2 italic mr-1">
             Level up
           </span>{" "}
@@ -54,7 +58,11 @@ export default function Home() {
         <div className="flex flex-row gap-4 w-full">
           {!user ? (
             <>
-              <a href={`/auth/login?returnTo=${encodeURIComponent(redirectAfterLogin)}`}>
+              <a
+                href={`/auth/login?returnTo=${encodeURIComponent(
+                  redirectAfterLogin
+                )}`}
+              >
                 <button className="mt-2 group px-6 py-2 rounded-3xl bg-black border-2 border-black text-white dark:bg-white dark:border-white dark:text-black font-medium hover:bg-white/50 dark:hover:bg-black/50 transition-all relative overflow-hidden">
                   <span className="inline-flex transition-transform duration-300 group-hover:-translate-x-20">
                     Log in
@@ -64,7 +72,11 @@ export default function Home() {
                   </span>
                 </button>
               </a>
-              <a href={`/auth/login?screen_hint=signup&returnTo=${encodeURIComponent(redirectAfterLogin)}`}>
+              <a
+                href={`/auth/login?screen_hint=signup&returnTo=${encodeURIComponent(
+                  redirectAfterLogin
+                )}`}
+              >
                 <button className="mt-2 group px-6 py-2 rounded-3xl bg-white/50 border-2 border-black text-black dark:bg-black/50 dark:border-white dark:text-white font-medium hover:bg-black dark:hover:bg-white transition-all relative overflow-hidden">
                   <span className="inline-flex transition-transform duration-300 group-hover:-translate-x-20">
                     Sign up

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import {
   MessageCircleQuestion,
-  Clock,
+  WholeWord,
   BadgeCheck,
   ChevronDown,
 } from "lucide-react";
@@ -26,10 +26,10 @@ export function SessionComponent({ session }: SessionComponentProps) {
   });
 
   function transformQuestions(rawQuestions: any[]) {
-    const transformed: { [category: string]: { [prompt: string]: { Response: string; Rating: string } } } = {};
+    const transformed: { [category: string]: { [prompt: string]: { Response: string; Rating: string; Notes: string; } } } = {};
     console.log(rawQuestions);
       rawQuestions.forEach((q) => {
-      const { category, prompt, response, rating } = q;
+      const { category, prompt, response, rating, notes } = q;
   
       if (!transformed[category]) {
         transformed[category] = {};
@@ -37,6 +37,7 @@ export function SessionComponent({ session }: SessionComponentProps) {
         transformed[category][prompt] = {
         Response: response,
         Rating: rating,
+        Notes: notes
       };
     });
   
@@ -59,6 +60,20 @@ export function SessionComponent({ session }: SessionComponentProps) {
     (goodQuestions * 10 + mediocreQuestions * 5) / totalQuestions
   ) : 0;
 
+
+  const arrayQ = Object.values(questions)
+  .flatMap(Object.values);
+
+const totalWordCount = arrayQ.reduce((acc, curr) => {
+  if (curr.Response) {
+    const wordCount = curr.Response.trim().split(/\s+/).length;
+    return acc + wordCount;
+  }
+  return acc;
+}, 0);
+
+const averageWords = arrayQ.length > 0 ? totalWordCount / arrayQ.length : 0;
+
   return (
     <div className="w-full">
     <div className="text-zinc-500 font-montserrat text-sm flex items-center mb-1">
@@ -74,15 +89,15 @@ export function SessionComponent({ session }: SessionComponentProps) {
             <MessageCircleQuestion className="w-5 h-5" aria-hidden="true" />
             <span>{totalQuestions} questions</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5" aria-hidden="true" />
-            <span>{time} minutes</span>
-          </div>
           <div className="items-center gap-2 sm:flex hidden">
             <BadgeCheck className="w-5 h-5" aria-hidden="true" />
             <span>
               {goodQuestions} Good
             </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <WholeWord className="w-5 h-5" aria-hidden="true" />
+            <span>{averageWords} words (avg)</span>
           </div>
           </div>
           <div className="flex items-center gap-2">

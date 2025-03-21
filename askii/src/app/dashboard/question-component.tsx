@@ -14,6 +14,7 @@ import {
 interface Question {
   Response: string;
   Rating: string;
+  Notes: string;
 }
 
 export function QuestionComponent({
@@ -38,7 +39,7 @@ export function QuestionComponent({
         <div className="mb-1 italic text-sm text-muted-foreground">
           {categoryName}
         </div>
-        {Object.entries(category).map(([question, { Response, Rating }]) => (
+        {Object.entries(category).map(([question, { Response, Rating, Notes }]) => (
           <div
             key={question}
             className="relative flex flex-col font-montserrat text-xs sm:text-sm mb-2"
@@ -78,18 +79,15 @@ export function QuestionComponent({
                 <p className="font-semibold mt-1">
                   {Rating === "GOOD" ? (
                     <div className="flex flex-row gap-1 text-[hsl(var(--good))]">
-                      <CheckCircle className="w-4 h-4" /> Well-practiced response,
-                      good job!
+                      <CheckCircle className="w-4 h-4" /> {Notes ? Notes: "Good reponse, well practiced"}
                     </div>
                   ) : Rating === "MEDIOCRE" ? (
                     <div className="flex flex-row  text-[hsl(var(--mid))] gap-1">
-                      <Circle className="w-4 h-4" /> Average response, could be
-                      better.
+                      <Circle className="w-4 h-4" /> {Notes ? Notes : "Could practice this question more"}
                     </div>
                   ) : (
                     <div className="flex flex-row gap-1 text-[hsl(var(--bad))]">
-                      <CircleX className="w-4 h-4" /> Poor response, needs
-                      improvement.
+                      <CircleX className="w-4 h-4" /> {Notes ? Notes: "Not prepared, practice this question more"}
                     </div>
                   )}
                 </p>
