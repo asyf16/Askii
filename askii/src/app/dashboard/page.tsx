@@ -1,28 +1,13 @@
 "use client";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { PieChartComponent } from "./chart";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { SessionComponent } from "./session-component";
 import { AppSidebar } from "@/components/side-bar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import InterviewDialog from "../interview/interview-dialog";
 import { useState } from "react";
+import DashboardData from "./dashboard";
+
 export default function Dashboard() {
-  const mid = [
-    { category: "Mediocre", questions: 275, fill: "hsl(var(--mid))" },
-    { category: "Other", questions: 200, fill: "hsl(var(--mid-neutral))" },
-  ];
-
-  const good = [
-    { category: "Good", questions: 275, fill: "hsl(var(--good))" },
-    { category: "Other", questions: 200, fill: "hsl(var(--good-neutral))" },
-  ];
-
-  const bad = [
-    { category: "Bad", questions: 275, fill: "hsl(var(--bad))" },
-    { category: "Other", questions: 200, fill: "hsl(var(--bad-neutral))" },
-  ];
 
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -53,34 +38,7 @@ export default function Dashboard() {
               <ThemeToggle className="border border-border z-10 mr-2 bg-background hover:bg-muted/40" />
             </div>
           </div>
-  
-          <main className="pt-24 px-6 pb-10 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
-              <div className="min-w-[200px] min-h-[200px]">
-                <PieChartComponent
-                  chartData={good}
-                  label="Well Prepared"
-                  description="Answered these questions well"
-                />
-              </div>
-              <div className="min-w-[200px] min-h-[200px]">
-                <PieChartComponent
-                  chartData={mid}
-                  label="Could Practice"
-                  description="Practice these a bit more"
-                />
-              </div>
-              <div className="min-w-[200px] min-h-[200px] sm:col-span-2 md:col-span-1">
-                <PieChartComponent
-                  chartData={bad}
-                  label="Not Prepared"
-                  description="Needs a lot of practice"
-                />
-              </div>
-            </div>
-            <SessionComponent />
-            <InterviewDialog openDialog={openDialog} onOpenChange={setOpenDialog}/>
-          </main>
+          <DashboardData openDialog={openDialog} setOpenDialog={setOpenDialog} />
         </div>
       </div>
     </SidebarProvider>

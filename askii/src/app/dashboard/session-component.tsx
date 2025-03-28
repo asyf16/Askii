@@ -2,49 +2,21 @@
 import { useState } from "react";
 import {
   MessageCircleQuestion,
-  Clock,
+  WholeWord,
   BadgeCheck,
   ChevronDown,
 } from "lucide-react";
 import { QuestionComponent } from "./question-component";
 import questionColors from "@/lib/constants";
+import { SessionType } from "./dashboard";
 
-const questions = {
-  Behavorial: {
-    "Why do you want to join us?": {
-      Response:
-        "I want to join because I want to learn more about the company and the culture.",
-      Rating: "Good",
-    },
-    "Why should we hire you?": {
-      Response: "I am a hard worker and I am willing to learn.",
-      Rating: "Mediocre",
-    },
-  },
-  Resume: {
-    "Tell me about an experience you had when you were in a team": {
-      Response:
-        "I was in a team of 5 people and we were able to complete the project in 2 days.",
-      Rating: "Good",
-    },
-    
-    "Tell me about a project on your resume": {
-      Response:
-        "I made a website for a local business using HTML, CSS, and JavaScript.",
-      Rating: "Good",
-    },
-  },
-  Leetcode: {
-    "What is the time complexity of the following code?": {
-      Response: "The time complexity is O(n^2).",
-      Rating: "Bad",
-    },
-  },
-};
+interface SessionComponentProps {
+  session: SessionType; 
+}
 
-export function SessionComponent() {
+export function SessionComponent({ session }: SessionComponentProps) {
   const [isActive, setIsActive] = useState(false);
-  const date = new Date();
+  const date = new Date(session.date);
   const formattedDate = date.toLocaleDateString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -53,22 +25,54 @@ export function SessionComponent() {
     year: "numeric",
   });
 
+  function transformQuestions(rawQuestions: any[]) {
+    const transformed: { [category: string]: { [prompt: string]: { Response: string; Rating: string; Notes: string; } } } = {};
+    console.log(rawQuestions);
+      rawQuestions.forEach((q) => {
+      const { category, prompt, response, rating, notes } = q;
+  
+      if (!transformed[category]) {
+        transformed[category] = {};
+      }
+        transformed[category][prompt] = {
+        Response: response,
+        Rating: rating,
+        Notes: notes
+      };
+    });
+  
+    return transformed;
+  }
+
+  const questions = transformQuestions(session.question);
+
   const time:number = 10;
 
   const totalQuestions = Object.values(questions).flatMap(Object.values).length;
   const goodQuestions = Object.values(questions)
     .flatMap(Object.values)
-    .filter((q) => q.Rating === "Good").length;
+    .filter((q) => q.Rating === "GOOD").length;
   const mediocreQuestions = Object.values(questions)
     .flatMap(Object.values)
-    .filter((q) => q.Rating === "Mediocre").length;
-  // const badQuestions = Object.values(questions)
-  //   .flatMap(Object.values)
-  //   .filter((q) => q.Rating === "Bad").length;
+    .filter((q) => q.Rating === "MEDIOCRE").length;
 
   const averageRating = totalQuestions > 0 ? Math.floor(
     (goodQuestions * 10 + mediocreQuestions * 5) / totalQuestions
   ) : 0;
+
+
+  const arrayQ = Object.values(questions)
+  .flatMap(Object.values);
+
+const totalWordCount = arrayQ.reduce((acc, curr) => {
+  if (curr.Response) {
+    const wordCount = curr.Response.trim().split(/\s+/).length;
+    return acc + wordCount;
+  }
+  return acc;
+}, 0);
+
+const averageWords = arrayQ.length > 0 ? totalWordCount / arrayQ.length : 0;
 
   return (
     <div className="w-full">
@@ -85,15 +89,15 @@ export function SessionComponent() {
             <MessageCircleQuestion className="w-5 h-5" aria-hidden="true" />
             <span>{totalQuestions} questions</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5" aria-hidden="true" />
-            <span>{time} minutes</span>
-          </div>
           <div className="items-center gap-2 sm:flex hidden">
             <BadgeCheck className="w-5 h-5" aria-hidden="true" />
             <span>
               {goodQuestions} Good
             </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <WholeWord className="w-5 h-5" aria-hidden="true" />
+            <span>{averageWords} words (avg)</span>
           </div>
           </div>
           <div className="flex items-center gap-2">
@@ -130,24 +134,19 @@ export function SessionComponent() {
         </button>
       </div>
       {isActive && (
-        <div
-          id="session-details"
-          className={`p-6 bg-background/50 border-t border-border space-y-3 transition-all duration-300 ease-in-out`}
-        >
-          <QuestionComponent
-            category={questions.Behavorial}
-            categoryName="Behavorial"
-          />
-          <QuestionComponent
-            category={questions.Resume}
-            categoryName="Resume"
-          />
-          <QuestionComponent
-            category={questions.Leetcode}
-            categoryName="Leetcode"
-          />
-        </div>
-      )}
+          <div
+            id="session-details"
+            className={`p-6 bg-background/50 border-t border-border space-y-3 transition-all duration-300 ease-in-out`}
+          >
+            {Object.entries(questions).map(([categoryName, categoryQuestions]) => (
+              <QuestionComponent
+                key={categoryName}
+                category={categoryQuestions}
+                categoryName={categoryName}
+              />
+            ))}
+          </div>
+        )}
     </div>
     </div>
   );

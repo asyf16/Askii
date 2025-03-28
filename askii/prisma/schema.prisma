@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String             @id @default(uuid())
+  auth0_id         String             @unique
+  email            String             @unique
+  name             String?
+  createdAt        DateTime           @default(now())
+  sessions         Session[]
+  RatingCollection RatingCollection[]
+}
+
+model Session {
+  id         String     @id @default(uuid())
+  date       DateTime   @unique
+  user       User       @relation(fields: [userId], references: [id])
+  userId     String
+  question Question[]
+}
+
+
+model Question {
+  id         String   @id @default(uuid())
+  category   Category
+  prompt     String
+  response   String
+  rating     Rating
+  notes      String?
+  session   Session @relation(fields: [sessionId], references: [id])
+  sessionId String
+}
+
+model RatingCollection {
+  id       String @id @default(uuid())
+  category Category
+  prompt   String
+  response String
+  rating   Rating
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+enum Rating {
+  GOOD
+  MEDIOCRE
+  BAD
+}
+
+enum Category {
+  Behavioral
+  Resume
+  Technical
+}

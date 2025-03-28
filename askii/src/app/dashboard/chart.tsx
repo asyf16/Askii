@@ -34,9 +34,12 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function PieChartComponent({chartData, label, description}: {chartData: ChartData[], label: string, description: string}) {
-  const totalQuestions = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.questions, 0)
-  }, [chartData])
+
+  const nonOther = React.useMemo(() => {
+    return chartData
+      .filter(item => item.category !== "Other") 
+      .reduce((acc, curr) => acc + curr.questions, 0);
+  }, [chartData]);
 
   return (
     <Card className="flex flex-col border shadow-md m-0 p-0 hover:bg-muted-foreground/10 transition-all duration-300">
@@ -72,7 +75,7 @@ export function PieChartComponent({chartData, label, description}: {chartData: C
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold font-montserrat"
                         >
-                          {totalQuestions.toLocaleString()}
+                          {nonOther.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}

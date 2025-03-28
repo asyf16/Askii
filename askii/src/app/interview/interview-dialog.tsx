@@ -28,14 +28,14 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
   const [interviewName, setInterviewName] = useState("")
   const [behavioralQuestions, setBehavioralQuestions] = useState("0")
   const [resumeQuestions, setResumeQuestions] = useState("0")
-  const [leetcodeQuestions, setLeetcodeQuestions] = useState("0")
+  const [technicalQuestions, setTechnicalQuestions] = useState("0")
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [resume, setResume] = useState<File | null>(null)
   const [jobDescription, setJobDescription] = useState("")
 
   useEffect(() => {
-    setTotalQuestions(Number(behavioralQuestions) + Number(resumeQuestions) + Number(leetcodeQuestions))
-  }, [behavioralQuestions, resumeQuestions, leetcodeQuestions])
+    setTotalQuestions(Number(behavioralQuestions) + Number(resumeQuestions) + Number(technicalQuestions))
+  }, [behavioralQuestions, resumeQuestions, technicalQuestions])
 
   const handleResumeChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -88,9 +88,9 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="leetcodeQuestions">Leetcode Questions (*)</Label>
-                  <Select value={leetcodeQuestions} onValueChange={setLeetcodeQuestions}>
-                    <SelectTrigger id="leetcodeQuestions">
+                  <Label htmlFor="technicalQuestions">Technical Questions (*)</Label>
+                  <Select value={technicalQuestions} onValueChange={setTechnicalQuestions}>
+                    <SelectTrigger id="technicalQuestions">
                       <SelectValue placeholder="Select number" />
                     </SelectTrigger>
                     <SelectContent>
@@ -135,7 +135,7 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
               disabled={totalQuestions === 0}
               onClick={() => {
                 if (totalQuestions > 0) {
-                  window.location.href = "/interview"
+                  window.location.href = `/interview?behavorial=${behavioralQuestions}?resume=${resumeQuestions}?technical=${technicalQuestions}`
                 }
               }}
             >

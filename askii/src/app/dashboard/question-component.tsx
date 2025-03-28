@@ -14,6 +14,7 @@ import {
 interface Question {
   Response: string;
   Rating: string;
+  Notes: string;
 }
 
 export function QuestionComponent({
@@ -38,23 +39,23 @@ export function QuestionComponent({
         <div className="mb-1 italic text-sm text-muted-foreground">
           {categoryName}
         </div>
-        {Object.entries(category).map(([question, { Response, Rating }]) => (
+        {Object.entries(category).map(([question, { Response, Rating, Notes }]) => (
           <div
             key={question}
             className="relative flex flex-col font-montserrat text-xs sm:text-sm mb-2"
           >
             <div
               className={`relative flex flex-row items-center gap-2 font-bold text-md sm:text-lg pr-8 border rounded-xl p-2 shadow-md cursor-pointer transition-colors ${
-                Rating === "Good"
+                Rating === "GOOD"
                   ? "bg-[hsl(var(--good-neutral))] border-[hsl(var(--good))]/70 hover:bg-[hsl(var(--good))]/30"
-                  : Rating === "Mediocre"
+                  : Rating === "MEDIOCRE"
                   ? "bg-[hsl(var(--mid-neutral))] border-[hsl(var(--mid))]/70 hover:bg-[hsl(var(--mid))]/30"
                   : "bg-[hsl(var(--bad-neutral))] border-[hsl(var(--bad))]/70 hover:bg-[hsl(var(--bad))]/30"
               }`}
               onClick={() => toggleQuestion(question)}
             >
               <div className="flex-shrink-0">
-                {categoryName === "Behavorial" ? (
+                {categoryName === "Behavioral" ? (
                   <FileUser className="w-5 h-5 sm:w-6 sm:h-6" />
                 ) : categoryName === "Resume" ? (
                   <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -76,20 +77,17 @@ export function QuestionComponent({
                 <p className="font-semibold">Your response:</p>
                 <p>{Response}</p>
                 <p className="font-semibold mt-1">
-                  {Rating === "Good" ? (
+                  {Rating === "GOOD" ? (
                     <div className="flex flex-row gap-1 text-[hsl(var(--good))]">
-                      <CheckCircle className="w-4 h-4" /> Well-practiced response,
-                      good job!
+                      <CheckCircle className="w-4 h-4" /> {Notes ? `My notes: ${Notes}`: "Good reponse, well practiced"}
                     </div>
-                  ) : Rating === "Mediocre" ? (
+                  ) : Rating === "MEDIOCRE" ? (
                     <div className="flex flex-row  text-[hsl(var(--mid))] gap-1">
-                      <Circle className="w-4 h-4" /> Average response, could be
-                      better.
+                      <Circle className="w-4 h-4" /> {Notes ? `My notes: ${Notes}` : "Could practice this question more"}
                     </div>
                   ) : (
                     <div className="flex flex-row gap-1 text-[hsl(var(--bad))]">
-                      <CircleX className="w-4 h-4" /> Poor response, needs
-                      improvement.
+                      <CircleX className="w-4 h-4" /> {Notes ? `My notes: ${Notes}`: "Not prepared, practice this question more"}
                     </div>
                   )}
                 </p>
