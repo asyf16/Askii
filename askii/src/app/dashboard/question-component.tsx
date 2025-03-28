@@ -79,15 +79,15 @@ export function QuestionComponent({
                 <p className="font-semibold mt-1">
                   {Rating === "GOOD" ? (
                     <div className="flex flex-row gap-1 text-[hsl(var(--good))]">
-                      <CheckCircle className="w-4 h-4" /> {Notes ? Notes: "Good reponse, well practiced"}
+                      <CheckCircle className="w-4 h-4" /> {Notes ? `My notes: ${Notes}`: "Good reponse, well practiced"}
                     </div>
                   ) : Rating === "MEDIOCRE" ? (
                     <div className="flex flex-row  text-[hsl(var(--mid))] gap-1">
-                      <Circle className="w-4 h-4" /> {Notes ? Notes : "Could practice this question more"}
+                      <Circle className="w-4 h-4" /> {Notes ? `My notes: ${Notes}` : "Could practice this question more"}
                     </div>
                   ) : (
                     <div className="flex flex-row gap-1 text-[hsl(var(--bad))]">
-                      <CircleX className="w-4 h-4" /> {Notes ? Notes: "Not prepared, practice this question more"}
+                      <CircleX className="w-4 h-4" /> {Notes ? `My notes: ${Notes}`: "Not prepared, practice this question more"}
                     </div>
                   )}
                 </p>
