@@ -21,11 +21,16 @@ const videoConstraints = {
   facingMode: "user",
 };
 
+const DEFAULT_GREETING =
+  "Hello, nice to meet you! I will be interviewing you today! Let's get started.";
+
 export default function Interview() {
   const webcamRef = React.useRef(null);
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
   const [recording, setRecording] = React.useState(false);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
+  const [currentCaption, setCurrentCaption] = React.useState<string>("");
+  const [useCaption, setUseCaption] = React.useState<boolean>(true);
 
   const pageURL = new URL(window.location.href);
   const resumeQuestions = pageURL.searchParams.get("resume") ?? "0";
@@ -93,42 +98,10 @@ export default function Interview() {
     }
   }, [recordedChunks]);
 
-  if (loading) {
-    return (
-      <div className="w-screen h-[100vh] flex flex-col">
-        <div className="text-zinc-500 font-montserrat text-sm font-bold absolute top-2 left-6 z-40">
-          ASKII.
-        </div>
-
-        <div className="w-full h-[35px] absolute top-0 left-0 bg-zinc-700 flex flex-row justify-center items-center text-white font-montserrat">
-        My Interview
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className="rounded-3xl bg-transparent hover:bg-transparent text-white hover:text-zinc-300 z-40"
-                size={"icon"}
-              >
-                <Info />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className=" text-white">
-              <p>Please wait while your questions load</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
-        <div className="pt-24 px-6 pb-10 w-full h-full flex justify-center items-center bg-zinc-900">
-          <div className="text-center text-lg font-semibold text-primary">
-            <div className="animate-pulse text-white">
-              <p>Loading your questions...</p>
-              <div className="mt-4 w-16 h-2 bg-gray-300 rounded-full mx-auto"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  function interviewerSpeak(message: string) {
+    let utterance = new SpeechSynthesisUtterance(message);
+    speechSynthesis.speak(utterance);
+    setCurrentCaption(message);
   }
 
   return (
@@ -155,109 +128,135 @@ export default function Interview() {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <div className="h-full w-[100vw] flex flex-col md:flex-row gap-2 bg-zinc-900 justify-center items-center px-2">
-        <div className="w-full h-[35%] md:h-[60%] bg-white rounded-md">
-          <InterviewVideo src={"/assets/interviewer.webm"} />
-          <div className="w-[100px] h-[30px] bg-zinc-900 relative text-center top-[calc(100%-30px)] left-0 text-white font-montserrat">
-            Interviewer
+      {loading ? (
+        <div className="pt-24 px-6 pb-10 w-full h-full flex justify-center items-center bg-zinc-900">
+          <div className="text-center text-lg font-semibold text-primary">
+            <div className="animate-pulse text-white">
+              <p>Loading your questions...</p>
+              <div className="mt-4 w-16 h-2 bg-gray-300 rounded-full mx-auto"></div>
+            </div>
           </div>
         </div>
-        <div className="w-full md:w-full h-[35%] md:h-[60%] bg-zinc-500 rounded-md relative">
-          <User className="absolute h-24 w-24 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white opacity-50 z-0" />
-          <Webcam
-            ref={webcamRef}
-            muted={true}
-            audio={true}
-            className="w-full h-full object-cover rounded-md relative z-10"
-            videoConstraints={videoConstraints}
-          />
-          <div className="w-[100px] h-[30px] bg-zinc-900 absolute bottom-0 left-0 text-center text-white font-montserrat">
-            Aurora Shi
+      ) : (
+        <>
+          <div className="h-full w-[100vw] flex flex-col md:flex-row gap-2 bg-zinc-900 justify-center items-center px-2">
+            <div className="w-full h-[35%] md:h-[60%] bg-white rounded-md">
+              <InterviewVideo src={"/assets/interviewer.webm"} />
+              <div className="w-[100px] h-[30px] bg-zinc-900 relative text-center top-[calc(100%-30px)] left-0 text-white font-montserrat">
+                Interviewer
+              </div>
+            </div>
+            <div className="w-full md:w-full h-[35%] md:h-[60%] bg-zinc-500 rounded-md relative">
+              <User className="absolute h-24 w-24 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white opacity-50 z-0" />
+              <Webcam
+                ref={webcamRef}
+                muted={true}
+                audio={true}
+                className="w-full h-full object-cover rounded-md relative z-10"
+                videoConstraints={videoConstraints}
+              />
+              <div className="w-[100px] h-[30px] bg-zinc-900 absolute bottom-0 left-0 text-center text-white font-montserrat">
+                Aurora Shi
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="w-full h-[75px] fixed bottom-0 py-2 gap-6 left-0 bg-zinc-800 flex flex-row justify-center items-center text-white font-montserrat">
-        <div
-          className="flex flex-col items-center gap-[3px] "
-          onClick={() =>
-            toast.warning("End current interview?", {
-              description: "Progress will not be saved.",
-              action: {
-                label: "Confirm",
-                onClick: () => (window.location.href = "/dashboard"),
-              },
-            })
-          }
-        >
-          <Button
-            className="rounded-3xl bg-red-700 hover:bg-red-900"
-            size={"icon"}
-          >
-            <PhoneMissed />
-          </Button>
-          <h1 className="text-xs">End Interview</h1>
-        </div>
-        <div className="flex flex-col items-center gap-[3px] ">
-          <Button
-            className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
-            size={"icon"}
-          >
-            <Captions />
-          </Button>
-          <h1 className={`text-xs text-white`}>Toggle Captions</h1>
-        </div>
-        <div className="flex flex-col items-center gap-[3px] ">
-          <Button
-            className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
-            size={"icon"}
-            disabled={recording}
-            onClick={handleStartRecording}
-          >
-            <Play />
-          </Button>
-          <h1
-            className={`text-xs ${recording ? "text-zinc-500" : "text-white"}`}
-          >
-            Start Answer
-          </h1>
-        </div>
-        <div className="flex flex-col items-center gap-[3px] ">
-          <Button
-            className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
-            size={"icon"}
-            disabled={!recording}
-            onClick={handleStopRecording}
-          >
-            <Pause />
-          </Button>
-          <h1
-            className={`text-xs ${recording ? "text-zinc-500" : "text-white"}`}
-          >
-            Finish Answer
-          </h1>
-        </div>
-        <Link
-          href={{
-            pathname: "/complete",
-            query: { time: new Date().toISOString() },
-          }}
-        >
-          <button
-            onClick={() => {
-              handleSaveVideo();
-            }}
-          >
-            download
-          </button>
-        </Link>
-      </div>
-      {recording && (
-        <div className="absolute top-20 left-[50%] -translate-x-[50%] flex items-center gap-2 bg-red-700 text-white font-montserrat px-3 py-1 text-sm rounded-full">
-          <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
-          <span className="font-bold tracking-wide">RECORDING</span>
-        </div>
+          <div className="w-full h-[75px] fixed bottom-0 py-2 gap-6 left-0 bg-zinc-800 flex flex-row justify-center items-center text-white font-montserrat">
+            <div
+              className="flex flex-col items-center gap-[3px] "
+              onClick={() =>
+                toast.warning("End current interview?", {
+                  description: "Progress will not be saved.",
+                  action: {
+                    label: "Confirm",
+                    onClick: () => (window.location.href = "/dashboard"),
+                  },
+                })
+              }
+            >
+              <Button
+                className="rounded-3xl bg-red-700 hover:bg-red-900"
+                size={"icon"}
+              >
+                <PhoneMissed />
+              </Button>
+              <h1 className="text-xs">End Interview</h1>
+            </div>
+            <div className="flex flex-col items-center gap-[3px] ">
+              <Button
+                className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
+                size={"icon"}
+                onClick={() => setUseCaption(!useCaption)}
+              >
+                <Captions />
+              </Button>
+              <h1 className={`text-xs text-white`}>Toggle Captions</h1>
+            </div>
+            <div className="flex flex-col items-center gap-[3px] ">
+              <Button
+                className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
+                size={"icon"}
+                disabled={recording}
+                onClick={handleStartRecording}
+              >
+                <Play />
+              </Button>
+              <h1
+                className={`text-xs ${
+                  recording ? "text-zinc-500" : "text-white"
+                }`}
+              >
+                Start Answer
+              </h1>
+            </div>
+            <div className="flex flex-col items-center gap-[3px] ">
+              <Button
+                className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
+                size={"icon"}
+                disabled={!recording}
+                onClick={handleStopRecording}
+              >
+                <Pause />
+              </Button>
+              <h1
+                className={`text-xs ${
+                  recording ? "text-zinc-500" : "text-white"
+                }`}
+              >
+                Finish Answer
+              </h1>
+            </div>
+            <Link
+              href={{
+                pathname: "/complete",
+                query: { time: new Date().toISOString() },
+              }}
+            >
+              <button
+                onClick={() => {
+                  handleSaveVideo();
+                }}
+              >
+                download
+              </button>
+            </Link>
+            <button onClick={() => interviewerSpeak(DEFAULT_GREETING)}>
+              speak
+            </button>
+          </div>
+          {recording && (
+            <div className="absolute top-20 left-[50%] -translate-x-[50%] flex items-center gap-2 bg-red-700 text-white font-montserrat px-3 py-1 text-sm rounded-full">
+              <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
+              <span className="font-bold tracking-wide">RECORDING</span>
+            </div>
+          )}
+          <Toaster richColors />
+          {currentCaption && useCaption && (
+            <div className="absolute bottom-[12%] left-1/2 z-[999] text-white bg-black p-1 rounded-md max-w-[80%] transform -translate-x-1/2">
+              {currentCaption}
+            </div>
+          )}
+        </>
       )}
-      <Toaster richColors />
     </div>
   );
 }
