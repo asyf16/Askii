@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { useFetchQuestions } from "./useFetchQuestions";
 import { PhoneMissed, Pause, Captions, Info, Play, User } from "lucide-react";
+import { useGenerateVoice } from "./useGenerateVoice";
 
 const videoConstraints = {
   width: 640,
@@ -36,12 +37,15 @@ export default function Interview() {
   const resumeQuestions = pageURL.searchParams.get("resume") ?? "0";
   const behavorialQuestions = pageURL.searchParams.get("behavorial") ?? "0";
   const technicalQuestions = pageURL.searchParams.get("technical") ?? "0";
+  const interviewerName = pageURL.searchParams.get("interviewerName") ?? "Interviewer";
 
   const { questions, loading } = useFetchQuestions(
     behavorialQuestions,
     resumeQuestions,
     technicalQuestions
   );
+
+  const { handleTextToSpeech } = useGenerateVoice();
 
   const handleStartRecording = React.useCallback(() => {
     setRecording(true);
@@ -98,12 +102,6 @@ export default function Interview() {
     }
   }, [recordedChunks]);
 
-  function interviewerSpeak(message: string) {
-    let utterance = new SpeechSynthesisUtterance(message);
-    speechSynthesis.speak(utterance);
-    setCurrentCaption(message);
-  }
-
   return (
     <div className="w-screen h-[100vh] flex flex-col">
       <div className="text-zinc-500 font-montserrat text-sm font-bold absolute top-2 left-6 z-40">
@@ -142,8 +140,8 @@ export default function Interview() {
           <div className="h-full w-[100vw] flex flex-col md:flex-row gap-2 bg-zinc-900 justify-center items-center px-2">
             <div className="w-full h-[35%] md:h-[60%] bg-white rounded-md">
               <InterviewVideo src={"/assets/interviewer.webm"} />
-              <div className="w-[100px] h-[30px] bg-zinc-900 relative text-center top-[calc(100%-30px)] left-0 text-white font-montserrat">
-                Interviewer
+              <div className="w-[100px] h-[30px] bg-zinc-900 z-[999] relative text-center top-[calc(100%-30px)] left-0 text-white font-montserrat">
+                {interviewerName}
               </div>
             </div>
             <div className="w-full md:w-full h-[35%] md:h-[60%] bg-zinc-500 rounded-md relative">
@@ -239,7 +237,7 @@ export default function Interview() {
                 download
               </button>
             </Link>
-            <button onClick={() => interviewerSpeak(DEFAULT_GREETING)}>
+            <button onClick={() => handleTextToSpeech(DEFAULT_GREETING + `My name is ${interviewerName}`)}>
               speak
             </button>
           </div>

@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 import useForceUpdate from "../components/stream-graph/useForceUpdate";
 import { CursorGlow } from "@/components/cursor-glow";
 import { useUser } from "@auth0/nextjs-auth0";
+import { useTheme } from "next-themes";
 
 export default function Home() {
   const redirectAfterLogin = "/dashboard"; // Change this to your desired redirect path
   const { width, height } = useWindowSize();
+  const {theme} = useTheme();
   const [isMounted, setIsMounted] = useState(false);
   const forceUpdate = useForceUpdate();
   const { user } = useUser();
@@ -31,11 +33,14 @@ export default function Home() {
       <div className="absolute inset-0 bg-grid-pattern dark:bg-grid-pattern-dark bg-grid opacity-[0.15]" />
       <CursorGlow />
       <ThemeToggle className="absolute top-8 sm:right-10 right-6 border border-border z-10 bg-background" />
-      <img
-        src="./assets/logo.png"
+      {theme === "light" ?       <img
+        src="./assets/logo-light.png"
         className="h-[25px] w-[25px] absolute top-10 left-10 sm:left-24"
-      ></img>
-      <h1 className="text-lg font-bold dark:text-[#e2bd4d] text-amber-500 font-archivo-black absolute top-10 left-[68px] sm:left-[123px]">
+      ></img> :       <img
+      src="./assets/logo-dark.png"
+      className="h-[25px] w-[25px] absolute top-10 left-10 sm:left-24"
+    ></img>}
+      <h1 className="text-lg font-bold dark:text-[#e2bd4d] text-amber-500 font-archivo-black absolute top-10 left-[68px] sm:left-[126px]">
         ASKII.
       </h1>
       <div className="flex flex-col items-start justify-center absolute top-[25%] left-10 sm:left-24 space-y-6 animate-fade-in z-10">

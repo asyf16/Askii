@@ -135,7 +135,7 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
               disabled={totalQuestions === 0}
               onClick={() => {
                 if (totalQuestions > 0) {
-                  window.location.href = `/interview?behavorial=${behavioralQuestions}?resume=${resumeQuestions}?technical=${technicalQuestions}`
+                  window.location.href = `/interview?behavorial=${behavioralQuestions}?resume=${resumeQuestions}?technical=${technicalQuestions}?interviewerName=${interviewName}`
                 }
               }}
             >
