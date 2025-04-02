@@ -4,20 +4,7 @@ import { SessionComponent } from "./session-component";
 import InterviewDialog from "../interview/interview-dialog";
 import { useState, useEffect } from "react";
 import { useUser } from "@auth0/nextjs-auth0";
-
-export interface SessionType {
-  id: string;
-  date: string;
-  userId: string;
-  question: {
-    id: string;
-    category: string;
-    prompt: string;
-    response: string;
-    rating: string;
-    sessionId: string;
-  }[];
-}
+import { SessionType } from "@/types/types";
 
 export default function DashboardData({
   openDialog,

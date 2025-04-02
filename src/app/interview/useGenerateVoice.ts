@@ -2,10 +2,13 @@ import { useState } from "react";
 
 export const useGenerateVoice = () => {
   const [loading, setLoading] = useState(false);
+  const [audioFinished, setAudioFinished] = useState(false);
+
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const handleTextToSpeech = async (text:string) => {
     setLoading(true);
+    setAudioFinished(false);
 
     try {
       const response = await fetch("/api/tts", {
@@ -22,6 +25,9 @@ export const useGenerateVoice = () => {
         setAudioUrl(url);
 
         const audio = new Audio(url);
+        audio.onended = () => {
+            setAudioFinished(true);
+          };
         audio.play();
       } else {
         console.error("Failed to generate TTS", await response.json());
@@ -33,5 +39,5 @@ export const useGenerateVoice = () => {
     }
   };
 
-  return { loading, handleTextToSpeech };
+  return { loading, handleTextToSpeech, audioFinished };
 };

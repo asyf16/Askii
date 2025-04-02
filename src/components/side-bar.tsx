@@ -7,10 +7,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
-
-interface SidebarProps {
-  setOpenDialog: (open: boolean) => void;
-}
+import { SidebarProps } from "@/types/types"
 
 export function AppSidebar({ setOpenDialog }: SidebarProps) {  
   return (

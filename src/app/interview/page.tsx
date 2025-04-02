@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import {
   Tooltip,
@@ -11,10 +12,10 @@ import Webcam from "react-webcam";
 import InterviewVideo from "./interview-video";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import Link from "next/link";
 import { useFetchQuestions } from "./useFetchQuestions";
-import { PhoneMissed, Pause, Captions, Info, Play, User } from "lucide-react";
+import { PhoneMissed, Pause, Captions, Info, User } from "lucide-react";
 import { useGenerateVoice } from "./useGenerateVoice";
+import { useSearchParams } from 'next/navigation'
 
 const videoConstraints = {
   width: 640,
@@ -26,28 +27,81 @@ const DEFAULT_GREETING =
   "Hello, nice to meet you! I will be interviewing you today! Let's get started.";
 
 export default function Interview() {
-  const webcamRef = React.useRef(null);
-  const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
-  const [recording, setRecording] = React.useState(false);
-  const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
-  const [currentCaption, setCurrentCaption] = React.useState<string>("");
-  const [useCaption, setUseCaption] = React.useState<boolean>(true);
+  const webcamRef = useRef(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const searchParams = useSearchParams()
 
-  const pageURL = new URL(window.location.href);
-  const resumeQuestions = pageURL.searchParams.get("resume") ?? "0";
-  const behavorialQuestions = pageURL.searchParams.get("behavorial") ?? "0";
-  const technicalQuestions = pageURL.searchParams.get("technical") ?? "0";
-  const interviewerName = pageURL.searchParams.get("interviewerName") ?? "Interviewer";
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
+  const [recording, setRecording] = useState(false);
+  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
+  const [currentCaption, setCurrentCaption] = useState<string>("");
+  const [useCaption, setUseCaption] = useState<boolean>(true);
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const [pageURL, setPageURL] = useState<URL | null>(null);
+
+  useEffect(() => {
+    if (isClient) {
+      setPageURL(new URL(window.location.href));
+    }
+  }, [isClient]);
+
+  const resumeQuestions = searchParams.get('resume') ?? "0";
+  const behavorialQuestions = searchParams.get('behavorial') ?? "0";
+  const technicalQuestions = searchParams.get('technical') ?? "0";
+  const interviewerName = searchParams.get('interviewerName') ?? "";
+  const jobTitle = searchParams.get('jobTitle') ?? "";
+
+
+  const { handleTextToSpeech, audioFinished } = useGenerateVoice();
 
   const { questions, loading } = useFetchQuestions(
     behavorialQuestions,
     resumeQuestions,
-    technicalQuestions
+    technicalQuestions, 
+    jobTitle
   );
 
-  const { handleTextToSpeech } = useGenerateVoice();
+  const default_greeting = interviewerName
+    ? `Hello, nice to meet you! My name is ${interviewerName}, and I will be interviewing you today. Let's get started.`
+    : `Hello, nice to meet you! I will be interviewing you today. Let's get started.`;
+
+  useEffect(() => {
+    // Start TTS when currentQuestionIndex changes
+    if (!loading && questions && questions.length > 0) {
+      if (currentQuestionIndex === -1) {
+        handleTextToSpeech(default_greeting);
+        setCurrentCaption(default_greeting);
+      } else {
+        handleTextToSpeech(questions[currentQuestionIndex].questionPrompt);
+        setCurrentCaption(questions[currentQuestionIndex].questionPrompt);
+      }
+    }
+  }, [loading, currentQuestionIndex]);
+
+  useEffect(() => {
+    // Start recording when TTS finishes
+    if (audioFinished) {
+      if (currentQuestionIndex === -1) {
+        handleNextQuestion();
+      } else {
+        handleStartRecording();
+      }
+    }
+  }, [audioFinished]);
+
+  const handleNextQuestion = () => {
+    // Go to next question
+    setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+  };
 
   const handleStartRecording = React.useCallback(() => {
+    // Start recording
     setRecording(true);
     mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
       mimeType: "video/webm",
@@ -72,26 +126,15 @@ export default function Interview() {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setRecording(false);
+
+      if (currentQuestionIndex == questions.length-1) {
+        handleSaveVideo();
+        window.location.href = "/complete?time=" + new Date().toISOString();
+      } else {
+        handleNextQuestion();
+      }
     }
   }, [mediaRecorderRef, webcamRef, setRecording]);
-
-  // const handleDownload = React.useCallback(() => {
-  //   console.log(recordedChunks)
-  //   if (recordedChunks.length) {
-  //     const blob = new Blob(recordedChunks, {
-  //       type: "video/webm"
-  //     });
-  //     const url = URL.createObjectURL(blob);
-  //     const a = document.createElement("a");
-  //     document.body.appendChild(a);
-  //     a.style.display = "none";
-  //     a.href = url;
-  //     a.download = "react-webcam-stream-capture.webm";
-  //     a.click();
-  //     window.URL.revokeObjectURL(url);
-  //     setRecordedChunks([]);
-  //   }
-  // }, [recordedChunks]);
 
   const handleSaveVideo = React.useCallback(() => {
     if (recordedChunks.length) {
@@ -193,23 +236,6 @@ export default function Interview() {
               <Button
                 className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
                 size={"icon"}
-                disabled={recording}
-                onClick={handleStartRecording}
-              >
-                <Play />
-              </Button>
-              <h1
-                className={`text-xs ${
-                  recording ? "text-zinc-500" : "text-white"
-                }`}
-              >
-                Start Answer
-              </h1>
-            </div>
-            <div className="flex flex-col items-center gap-[3px] ">
-              <Button
-                className="rounded-3xl bg-zinc-500 hover:bg-zinc-600"
-                size={"icon"}
                 disabled={!recording}
                 onClick={handleStopRecording}
               >
@@ -223,23 +249,6 @@ export default function Interview() {
                 Finish Answer
               </h1>
             </div>
-            <Link
-              href={{
-                pathname: "/complete",
-                query: { time: new Date().toISOString() },
-              }}
-            >
-              <button
-                onClick={() => {
-                  handleSaveVideo();
-                }}
-              >
-                download
-              </button>
-            </Link>
-            <button onClick={() => handleTextToSpeech(DEFAULT_GREETING + `My name is ${interviewerName}`)}>
-              speak
-            </button>
           </div>
           {recording && (
             <div className="absolute top-20 left-[50%] -translate-x-[50%] flex items-center gap-2 bg-red-700 text-white font-montserrat px-3 py-1 text-sm rounded-full">

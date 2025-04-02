@@ -8,11 +8,7 @@ import {
 } from "lucide-react";
 import { QuestionComponent } from "./question-component";
 import questionColors from "@/lib/constants";
-import { SessionType } from "./dashboard";
-
-interface SessionComponentProps {
-  session: SessionType; 
-}
+import { SessionComponentProps } from "@/types/types";
 
 export function SessionComponent({ session }: SessionComponentProps) {
   const [isActive, setIsActive] = useState(false);

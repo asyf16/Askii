@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-export function useFetchQuestions(resume: string, technical: string, behavorial:string){
+import { GeneratedQuestionsArray } from "@/types/types";
+
+export function useFetchQuestions(resume: string, technical: string, behavorial:string, jobTitle:string){
     const [loading, setLoading] = useState(true);
-    const [questions, setQuestions] = useState(null);
+    const [questions, setQuestions] = useState<GeneratedQuestionsArray>([]);
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -11,10 +13,10 @@ export function useFetchQuestions(resume: string, technical: string, behavorial:
                     headers: {
                       "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ behavorial, resume, technical }),
+                    body: JSON.stringify({ behavorial, resume, technical, jobTitle }),
                   });
                 const json = await response.json();
-                setQuestions(json);
+                setQuestions(JSON.parse(json));
                 setLoading(false);
             }
             catch (e) {

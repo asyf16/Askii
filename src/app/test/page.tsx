@@ -2,19 +2,19 @@
 "use client";
 
 import React from "react";
-import { useGenerateVoice } from "../interview/useGenerateVoice";
-
+import { useFetchQuestions } from "../interview/useFetchQuestions";
 const TTSComponent = () => {
-  const { loading, handleTextToSpeech } = useGenerateVoice(
-  );
+    const { questions, loading } = useFetchQuestions(
+      "1", "2", "3"
+    );
 
+  if (loading){
+    return <></>
+  }
   return (
-    <div>
-      <button onClick={() => {handleTextToSpeech("Testing")}} disabled={loading}>
-        {loading ? "Generating..." : "Generate Speech"}
-      </button>
-    </div>
-  );
+    <div>{JSON.stringify(questions)}
+    <button onClick={() => {console.log(questions)}}>click me</button></div>
+  )
 };
 
 export default TTSComponent;

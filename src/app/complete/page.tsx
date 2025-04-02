@@ -24,7 +24,6 @@ import { useSearchParams } from "next/navigation";
 interface UserRatings {
   notes?: string;
   rating: number;
-  save: boolean;
 }
 
 export default function Complete() {
@@ -43,7 +42,7 @@ export default function Complete() {
   const [selected, setSelected] = useState(-1);
 
   const [userRatings, setUserRatings] = useState<UserRatings[]>(
-    Array(questions.length).fill({ rating: -1, notes: "", save: false })
+    Array(questions.length).fill({ rating: -1, notes: "" })
   );
 
   useEffect(() => {

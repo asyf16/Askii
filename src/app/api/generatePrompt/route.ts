@@ -4,9 +4,9 @@ import { NextResponse } from "next/server";
 const GENAI_API_KEY = process.env.GEMINI_API_KEY || "";
 
 export async function POST(req: Request) {
-  const { behavorial, resume, technical } = await req.json();
+  const { behavorial, resume, technical, jobTitle } = await req.json();
 
-  if (!behavorial && !resume && !technical) {
+  if ((!behavorial && !resume && !technical) || !jobTitle) {
     return NextResponse.json(
       { error: "Question amount is required." },
       { status: 400 }
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         },
       },
     });
-    const AI_prompt = `You are an interviewer for a Software engineering role. Please come up with ${behavorial} behavorial interview questions, ${resume} resume interview questions, and ${technical} technical interview questions. Each question should be less than 2000 characters.`;
+    const AI_prompt = `You are an interviewer for a ${jobTitle} role. Please come up with ${behavorial} behavorial interview questions, ${resume} resume interview questions, and ${technical} technical interview questions. Each question should be less than 2000 characters.`;
     const result = await AI_model.generateContent([AI_prompt]);
 
     if (result && result.response) {

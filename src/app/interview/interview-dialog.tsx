@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect, type ChangeEvent } from "react"
+import { useState, useEffect, type ChangeEvent } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -10,38 +10,53 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Button } from "@/components/ui/button"
-import { StartInterview } from "./start-interview"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { StartInterview } from "./start-interview";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import Link from "next/link";
 
 interface InterviewDialogProps {
-  openDialog: boolean
-  onOpenChange: (open: boolean) => void
+  openDialog: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export default function InterviewDialog({ openDialog, onOpenChange }: InterviewDialogProps) {
-  const [interviewName, setInterviewName] = useState("")
-  const [behavioralQuestions, setBehavioralQuestions] = useState("0")
-  const [resumeQuestions, setResumeQuestions] = useState("0")
-  const [technicalQuestions, setTechnicalQuestions] = useState("0")
-  const [totalQuestions, setTotalQuestions] = useState(0)
-  const [resume, setResume] = useState<File | null>(null)
-  const [jobDescription, setJobDescription] = useState("")
+export default function InterviewDialog({
+  openDialog,
+  onOpenChange,
+}: InterviewDialogProps) {
+  const [interviewName, setInterviewName] = useState("");
+  const [behavioralQuestions, setBehavioralQuestions] = useState("0");
+  const [resumeQuestions, setResumeQuestions] = useState("0");
+  const [technicalQuestions, setTechnicalQuestions] = useState("0");
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [jobTitle, setJobTitle] = useState("");
+  const [resume, setResume] = useState<File | null>(null);
+  const [jobDescription, setJobDescription] = useState("");
 
   useEffect(() => {
-    setTotalQuestions(Number(behavioralQuestions) + Number(resumeQuestions) + Number(technicalQuestions))
-  }, [behavioralQuestions, resumeQuestions, technicalQuestions])
+    setTotalQuestions(
+      Number(behavioralQuestions) +
+        Number(resumeQuestions) +
+        Number(technicalQuestions)
+    );
+  }, [behavioralQuestions, resumeQuestions, technicalQuestions]);
 
   const handleResumeChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setResume(e.target.files[0])
+      setResume(e.target.files[0]);
     }
-  }
+  };
 
   return (
     <Drawer open={openDialog} onOpenChange={onOpenChange}>
@@ -52,14 +67,21 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
         <div className="flex flex-col h-[80vh]">
           <DrawerHeader>
             <DrawerTitle>Start Interview</DrawerTitle>
-            <DrawerDescription>Configure your interview settings</DrawerDescription>
+            <DrawerDescription>
+              Configure your interview settings
+            </DrawerDescription>
           </DrawerHeader>
           <ScrollArea className="flex-grow">
             <div className="gap-4 flex flex-col pb-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="behavioralQuestions">Behavioral Questions (*)</Label>
-                  <Select value={behavioralQuestions} onValueChange={setBehavioralQuestions}>
+                  <Label htmlFor="behavioralQuestions">
+                    Behavioral Questions (*)
+                  </Label>
+                  <Select
+                    value={behavioralQuestions}
+                    onValueChange={setBehavioralQuestions}
+                  >
                     <SelectTrigger id="behavioralQuestions">
                       <SelectValue placeholder="Select number" />
                     </SelectTrigger>
@@ -74,7 +96,10 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="resumeQuestions">Resume Questions (*)</Label>
-                  <Select value={resumeQuestions} onValueChange={setResumeQuestions}>
+                  <Select
+                    value={resumeQuestions}
+                    onValueChange={setResumeQuestions}
+                  >
                     <SelectTrigger id="resumeQuestions">
                       <SelectValue placeholder="Select number" />
                     </SelectTrigger>
@@ -88,8 +113,13 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="technicalQuestions">Technical Questions (*)</Label>
-                  <Select value={technicalQuestions} onValueChange={setTechnicalQuestions}>
+                  <Label htmlFor="technicalQuestions">
+                    Technical Questions (*)
+                  </Label>
+                  <Select
+                    value={technicalQuestions}
+                    onValueChange={setTechnicalQuestions}
+                  >
                     <SelectTrigger id="technicalQuestions">
                       <SelectValue placeholder="Select number" />
                     </SelectTrigger>
@@ -103,21 +133,43 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
                   </Select>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="interviewName">Interview Name (optional)</Label>
-                <Input
-                  id="interviewName"
-                  placeholder="Enter interview name"
-                  value={interviewName}
-                  onChange={(e) => setInterviewName(e.target.value)}
-                />
+              <div className="flex flex-row gap-2">
+                <div className="w-1/2">
+                  <Label htmlFor="jobTitle">
+                    Job Title (*)
+                  </Label>
+                  <Input
+                    id="jobTitle"
+                    placeholder="Enter job title"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                  />
+                </div>
+                <div className="w-1/2">
+                  <Label htmlFor="interviewName">
+                    Interview Name (optional)
+                  </Label>
+                  <Input
+                    id="interviewName"
+                    placeholder="Enter interview name"
+                    value={interviewName}
+                    onChange={(e) => setInterviewName(e.target.value)}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="resume">Upload Resume (optional)</Label>
-                <Input id="resume" type="file" accept=".pdf" onChange={handleResumeChange} />
+                <Input
+                  id="resume"
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleResumeChange}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="jobDescription">Job/Company Description (optional)</Label>
+                <Label htmlFor="jobDescription">
+                  Job/Company Description (optional)
+                </Label>
                 <Textarea
                   id="jobDescription"
                   placeholder="Paste job or company description for personalized questions..."
@@ -127,22 +179,43 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
                 />
               </div>
             </div>
-            <ScrollBar orientation="vertical"/>
+            <ScrollBar orientation="vertical" />
           </ScrollArea>
           <DrawerFooter>
-            <Button
-              className="mt-4 hover:bg-primary/60"
-              disabled={totalQuestions === 0}
-              onClick={() => {
-                if (totalQuestions > 0) {
-                  window.location.href = `/interview?behavorial=${behavioralQuestions}?resume=${resumeQuestions}?technical=${technicalQuestions}?interviewerName=${interviewName}`
-                }
-              }}
+            <Link
+              className="w-full"
+              href={
+                totalQuestions !== 0 && jobTitle
+                  ? {
+                      pathname: "/interview",
+                      query: {
+                        behavorial: behavioralQuestions,
+                        resume: resumeQuestions,
+                        technical: technicalQuestions,
+                        interviewerName: interviewName,
+                        jobTitle: jobTitle,
+                      },
+                    }
+                  : {}
+              }
             >
-              Start Interview
-            </Button>
+              <Button
+                className="mt-4 hover:bg-primary/60 w-full"
+                disabled={totalQuestions === 0 || !jobTitle}
+                onClick={(e) => {
+                  if (totalQuestions === 0) {
+                    e.preventDefault();
+                  }
+                }}
+              >
+                Start Interview
+              </Button>
+            </Link>
             <DrawerClose>
-              <Button className="w-full hover:bg-muted-foreground/20 hover:text-foreground" variant="outline">
+              <Button
+                className="w-full hover:bg-muted-foreground/20 hover:text-foreground"
+                variant="outline"
+              >
                 Cancel
               </Button>
             </DrawerClose>
@@ -150,6 +223,5 @@ export default function InterviewDialog({ openDialog, onOpenChange }: InterviewD
         </div>
       </DrawerContent>
     </Drawer>
-  )
+  );
 }
-
