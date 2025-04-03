@@ -12,9 +12,9 @@ import Webcam from "react-webcam";
 import InterviewVideo from "./interview-video";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { useFetchQuestions } from "./useFetchQuestions";
+import { useFetchQuestions } from "../../hooks/useFetchQuestions";
 import { PhoneMissed, Pause, Captions, Info, User } from "lucide-react";
-import { useGenerateVoice } from "./useGenerateVoice";
+import { useGenerateVoice } from "../../hooks/useGenerateVoice";
 import { useSearchParams } from 'next/navigation'
 
 const videoConstraints = {
@@ -22,9 +22,6 @@ const videoConstraints = {
   height: 480,
   facingMode: "user",
 };
-
-const DEFAULT_GREETING =
-  "Hello, nice to meet you! I will be interviewing you today! Let's get started.";
 
 export default function Interview() {
   const webcamRef = useRef(null);
@@ -122,6 +119,15 @@ export default function Interview() {
     [setRecordedChunks]
   );
 
+  const handleSaveVideo = React.useCallback(() => {
+    if (recordedChunks.length) {
+      const chunkUrls = recordedChunks.map((chunk) =>
+        URL.createObjectURL(chunk)
+      );
+      localStorage.setItem("videoChunks", JSON.stringify(chunkUrls));
+    }
+  }, [recordedChunks]);
+
   const handleStopRecording = React.useCallback(() => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
@@ -135,15 +141,6 @@ export default function Interview() {
       }
     }
   }, [mediaRecorderRef, webcamRef, setRecording]);
-
-  const handleSaveVideo = React.useCallback(() => {
-    if (recordedChunks.length) {
-      const chunkUrls = recordedChunks.map((chunk) =>
-        URL.createObjectURL(chunk)
-      );
-      localStorage.setItem("videoChunks", JSON.stringify(chunkUrls));
-    }
-  }, [recordedChunks]);
 
   return (
     <div className="w-screen h-[100vh] flex flex-col">
