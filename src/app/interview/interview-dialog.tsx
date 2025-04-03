@@ -25,7 +25,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
-import { useFetchQuestions } from "@/hooks/useFetchQuestions";
 import { Context } from "@/lib/ContextProvider";
 
 interface InterviewDialogProps {
