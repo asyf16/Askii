@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/themeProvider";
 import "./globals.css";
 import type { ReactNode } from "react";
 import { Archivo_Black, Montserrat } from "next/font/google";
+import ContextProvider from "@/lib/ContextProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,14 +17,14 @@ const geistMono = Geist_Mono({
 });
 
 const archivoBlack = Archivo_Black({
-  weight: '400',
-  subsets: ['latin'],
-  variable: '--font-archivo-black',
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-archivo-black",
 });
 
 const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
+  subsets: ["latin"],
+  variable: "--font-montserrat",
 });
 
 export const metadata: Metadata = {
@@ -41,14 +42,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} ${montserrat.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <> {children}</>
-        </ThemeProvider>
+        <ContextProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <> {children}</>
+          </ThemeProvider>
+        </ContextProvider>
       </body>
     </html>
   );

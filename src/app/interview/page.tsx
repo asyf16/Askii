@@ -16,6 +16,7 @@ import { useFetchQuestions } from "../../hooks/useFetchQuestions";
 import { PhoneMissed, Pause, Captions, Info, User } from "lucide-react";
 import { useGenerateVoice } from "../../hooks/useGenerateVoice";
 import { useSearchParams } from 'next/navigation'
+import { GeneratedQuestionsArray } from "@/types/types";
 
 const videoConstraints = {
   width: 640,
@@ -33,6 +34,7 @@ export default function Interview() {
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
   const [currentCaption, setCurrentCaption] = useState<string>("");
   const [useCaption, setUseCaption] = useState<boolean>(true);
+  const [generatedQuestions, setGeneratedQuestion] = useState<GeneratedQuestionsArray>([]);
 
   const [isClient, setIsClient] = useState(false);
 
@@ -74,9 +76,13 @@ export default function Interview() {
       if (currentQuestionIndex === -1) {
         handleTextToSpeech(default_greeting);
         setCurrentCaption(default_greeting);
+        console.log(questions)
+        setGeneratedQuestion(questions)
+
       } else {
+        if (currentQuestionIndex < questions.length){
         handleTextToSpeech(questions[currentQuestionIndex].questionPrompt);
-        setCurrentCaption(questions[currentQuestionIndex].questionPrompt);
+        setCurrentCaption(questions[currentQuestionIndex].questionPrompt);}
       }
     }
   }, [loading, currentQuestionIndex]);
@@ -94,7 +100,7 @@ export default function Interview() {
 
   const handleNextQuestion = () => {
     // Go to next question
-    setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+    setCurrentQuestionIndex(currentQuestionIndex+1);
   };
 
   const handleStartRecording = React.useCallback(() => {
@@ -133,7 +139,11 @@ export default function Interview() {
       mediaRecorderRef.current.stop();
       setRecording(false);
 
-      if (currentQuestionIndex == questions.length-1) {
+      console.log(currentQuestionIndex);
+      console.log(generatedQuestions);
+      console.log(generatedQuestions.length);
+
+      if (currentQuestionIndex >= (generatedQuestions.length)) {
         handleSaveVideo();
         window.location.href = "/complete?time=" + new Date().toISOString();
       } else {
@@ -255,7 +265,7 @@ export default function Interview() {
           )}
           <Toaster richColors />
           {currentCaption && useCaption && (
-            <div className="absolute bottom-[12%] left-1/2 z-[999] text-white bg-black p-1 rounded-md max-w-[80%] transform -translate-x-1/2">
+            <div className="absolute bottom-[12%] text-center left-1/2 z-[999] text-white bg-black p-1 rounded-md max-w-[80%] transform -translate-x-1/2">
               {currentCaption}
             </div>
           )}

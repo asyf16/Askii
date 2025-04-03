@@ -133,8 +133,8 @@ export default function InterviewDialog({
                   </Select>
                 </div>
               </div>
-              <div className="flex flex-row gap-2">
-                <div className="w-1/2">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="sm:w-1/2 w-full sm:mb-0 mb-2">
                   <Label htmlFor="jobTitle">
                     Job Title (*)
                   </Label>
@@ -145,7 +145,7 @@ export default function InterviewDialog({
                     onChange={(e) => setJobTitle(e.target.value)}
                   />
                 </div>
-                <div className="w-1/2">
+                <div className="sm:w-1/2 w-full">
                   <Label htmlFor="interviewName">
                     Interview Name (optional)
                   </Label>

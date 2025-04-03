@@ -13,4 +13,8 @@ const questionColors: { [key: number]: string } = {
   };
   
   export default questionColors;
+
+  export const GENERATED_PROMPTS_KEY = "GENERATED_PROMPTS_KEY";
+  export const QUESTION_INDEX_KEY = "QUESTION_INDEX_KEY";
+
   
