@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         },
       },
     });
-    const AI_prompt = `You are an interviewer for a ${jobTitle} role. Please come up with ${behavorial} behavorial interview questions, ${resume} resume interview questions, and ${technical} technical interview questions. Each question should be less than 2000 characters.`;
+    const AI_prompt = `You are an interviewer for a ${jobTitle} role. Please come up with ${behavorial} behavorial interview questions, ${resume} resume interview questions, and ${technical} technical interview questions. Each question should be less than 2000 characters. Try not to ask a question you have asked before.`;
     const result = await AI_model.generateContent([AI_prompt]);
 
     if (result && result.response) {

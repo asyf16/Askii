@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type ChangeEvent } from "react";
+import { useState, useEffect, useContext, type ChangeEvent } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -25,6 +25,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
+import { useFetchQuestions } from "@/hooks/useFetchQuestions";
+import { Context } from "@/lib/ContextProvider";
 
 interface InterviewDialogProps {
   openDialog: boolean;
@@ -35,6 +37,7 @@ export default function InterviewDialog({
   openDialog,
   onOpenChange,
 }: InterviewDialogProps) {
+  const { setQuestionIndex, setGeneratedPrompts } = useContext(Context);
   const [interviewName, setInterviewName] = useState("");
   const [behavioralQuestions, setBehavioralQuestions] = useState("0");
   const [resumeQuestions, setResumeQuestions] = useState("0");
@@ -43,6 +46,23 @@ export default function InterviewDialog({
   const [jobTitle, setJobTitle] = useState("");
   const [resume, setResume] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
+
+  const fetchQuestions = async ( behavorial: string, resume: string, technical: string, jobTitle: string) => {
+    try {
+      const response = await fetch("/api/generatePrompt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ behavorial, resume, technical, jobTitle }),
+      });
+      const json = await response.json();
+      setGeneratedPrompts(JSON.parse(json));
+      setQuestionIndex(-1);
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    }
+  };
 
   useEffect(() => {
     setTotalQuestions(
@@ -135,9 +155,7 @@ export default function InterviewDialog({
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="sm:w-1/2 w-full sm:mb-0 mb-2">
-                  <Label htmlFor="jobTitle">
-                    Job Title (*)
-                  </Label>
+                  <Label htmlFor="jobTitle">Job Title (*)</Label>
                   <Input
                     id="jobTitle"
                     placeholder="Enter job title"
@@ -205,6 +223,9 @@ export default function InterviewDialog({
                 onClick={(e) => {
                   if (totalQuestions === 0) {
                     e.preventDefault();
+                  }
+                  else{
+                    fetchQuestions(behavioralQuestions, resumeQuestions, technicalQuestions, jobTitle)
                   }
                 }}
               >
