@@ -23,7 +23,6 @@ export function SessionComponent({ session }: SessionComponentProps) {
 
   function transformQuestions(rawQuestions: any[]) {
     const transformed: { [category: string]: { [prompt: string]: { Response: string; Rating: string; Notes: string; } } } = {};
-    console.log(rawQuestions);
       rawQuestions.forEach((q) => {
       const { category, prompt, response, rating, notes } = q;
   

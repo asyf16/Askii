@@ -38,11 +38,11 @@ export const questionIndexSetLS = (value: number) => {
 export const questionIndexGetLS = (): number => {
   try {
     const response = localStorage.getItem(QUESTION_INDEX_KEY);
-    const parsed = response ? parseInt(response, 10) : -1;
-    return isNaN(parsed) ? -1 : parsed;
+    const parsed = response ? parseInt(response, 10) : 0;
+    return isNaN(parsed) ? 0 : parsed;
   } catch (e) {
     console.error("Error reading question index from localStorage:", e);
-    return -1;
+    return 0;
   }
 };
 
@@ -65,7 +65,7 @@ export default function ContextProvider({
 }) {
   const [generatedPrompts, setCurrentGeneratedPrompts] =
     useState<GeneratedQuestionsArray>([]);
-  const [questionIndex, setCurrentQuestionIndex] = useState<number>(-1);
+  const [questionIndex, setCurrentQuestionIndex] = useState<number>(0);
 
   const setGeneratedPrompts = useCallback(
     (
@@ -137,7 +137,7 @@ export default function ContextProvider({
           setCurrentQuestionIndex(result);
         } catch (e) {
           console.log(e);
-          setCurrentQuestionIndex(-1);
+          setCurrentQuestionIndex(0);
         }
       }
     };

@@ -1,4 +1,4 @@
-export type QuestionType = "Behavioral" | "Resume" | "Technical";
+export type QuestionType = "Behavioral" | "Resume" | "Technical" | "Greeting";
 
 export interface GeneratedQuestion {
   questionPrompt: string;

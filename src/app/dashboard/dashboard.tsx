@@ -64,7 +64,6 @@ export default function DashboardData({
           if (response.ok) {
             const data = await response.json();
             setSessions(data);
-            console.log(data);
           } else {
             console.error("Failed to fetch sessions:", response.statusText);
           }
@@ -84,7 +83,6 @@ export default function DashboardData({
           if (response.ok) {
             const data = await response.json();
             setQuestions(data);
-            console.log(data);
             const goodQuestions = data["GOOD"].length;
             const mediocreQuestions = data["MEDIOCRE"].length;
             const badQuestions = data["BAD"].length;

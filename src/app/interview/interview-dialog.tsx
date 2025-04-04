@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { Context } from "@/lib/ContextProvider";
+import { GeneratedQuestion } from "@/types/types";
 
 interface InterviewDialogProps {
   openDialog: boolean;
@@ -46,7 +47,13 @@ export default function InterviewDialog({
   const [resume, setResume] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
 
-  const fetchQuestions = async ( behavorial: string, resume: string, technical: string, jobTitle: string) => {
+  const fetchQuestions = async (
+    behavorial: string,
+    resume: string,
+    technical: string,
+    jobTitle: string,
+    interviewerName?: string
+  ) => {
     try {
       const response = await fetch("/api/generatePrompt", {
         method: "POST",
@@ -56,8 +63,18 @@ export default function InterviewDialog({
         body: JSON.stringify({ behavorial, resume, technical, jobTitle }),
       });
       const json = await response.json();
-      setGeneratedPrompts(JSON.parse(json));
-      setQuestionIndex(-1);
+      const parsedJSON = JSON.parse(json);
+
+      const default_greeting = interviewerName
+        ? `Hello, nice to meet you! My name is ${interviewerName}, and I will be interviewing you today. Let's get started.`
+        : `Hello, nice to meet you! I will be interviewing you today. Let's get started.`;
+
+      const formattedGreeting: GeneratedQuestion = {questionPrompt: default_greeting, questionType: "Greeting"}
+
+      parsedJSON.unshift(formattedGreeting)
+
+      setGeneratedPrompts(parsedJSON);
+      setQuestionIndex(0);
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
@@ -222,9 +239,13 @@ export default function InterviewDialog({
                 onClick={(e) => {
                   if (totalQuestions === 0) {
                     e.preventDefault();
-                  }
-                  else{
-                    fetchQuestions(behavioralQuestions, resumeQuestions, technicalQuestions, jobTitle)
+                  } else {
+                    fetchQuestions(
+                      behavioralQuestions,
+                      resumeQuestions,
+                      technicalQuestions,
+                      jobTitle
+                    );
                   }
                 }}
               >

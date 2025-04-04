@@ -41,45 +41,22 @@ export default function Interview() {
 
   const { handleTextToSpeech, audioFinished } = useGenerateVoice();
 
-  // const default_greeting = interviewerName
-  //   ? `Hello, nice to meet you! My name is ${interviewerName}, and I will be interviewing you today. Let's get started.`
-  //   : `Hello, nice to meet you! I will be interviewing you today. Let's get started.`;
-
-  const default_greeting = `Hello, nice to meet you! I will be interviewing you today. Let's get started.`;
-
   useEffect(() => {
     setQuestionIndex(questionIndexGetLS());
-  }, []);
-
-  useEffect(() => {
     setGeneratedPrompts(genPromptsGetLS());
   }, []);
 
   useEffect(() => {
-    if (questionIndex === -1) {
-      handleTextToSpeech(default_greeting);
-      setCurrentCaption(default_greeting);
-    }
-  }, [questionIndex]);
-
-  useEffect(() => {
-    // Start TTS when currentQuestionIndex changes
-    if (
-      generatedPrompts &&
-      generatedPrompts.length > 0 &&
-      questionIndex !== -1
-    ) {
-      if (questionIndex < generatedPrompts.length) {
-        handleTextToSpeech(generatedPrompts[questionIndex].questionPrompt);
-        setCurrentCaption(generatedPrompts[questionIndex].questionPrompt);
-      }
+    if (questionIndex < generatedPrompts.length) {
+      handleTextToSpeech(generatedPrompts[questionIndex].questionPrompt);
+      setCurrentCaption(generatedPrompts[questionIndex].questionPrompt);
     }
   }, [questionIndex]);
 
   useEffect(() => {
     // Start recording when TTS finishes
     if (audioFinished) {
-      if (questionIndex === -1) {
+      if (questionIndex === 0) {
         setQuestionIndex(questionIndex + 1);
       } else {
         handleStartRecording();
@@ -202,11 +179,12 @@ export default function Interview() {
             size={"icon"}
             disabled={!recording}
             onClick={() => {
-              handleStopRecording;
+              handleStopRecording();
               setQuestionIndex(questionIndex + 1);
-              if (questionIndex >= generatedPrompts.length) {
+              if (questionIndex + 1 >= generatedPrompts.length) {
                 handleSaveVideo();
-                window.location.href = "/complete?time=" + new Date().toISOString();
+                window.location.href =
+                  "/complete?time=" + new Date().toISOString();
               }
             }}
           >
