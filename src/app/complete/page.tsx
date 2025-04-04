@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSearchParams } from "next/navigation";
+import { Context } from "@/lib/ContextProvider";
 
 interface UserRatings {
   notes?: string;
@@ -30,15 +31,14 @@ export default function Complete() {
   const searchParams = useSearchParams();
   const time = searchParams.get("time");
 
-  const [videoChunks, setVideoChunks] = useState<string[]>([]);
-  const questions = [
-    "Describe one thing on your resume",
-    "Tell me about yourself",
-    "Tell me about this project",
-  ];
-  const category = ["Behavioral", "Behavorial", "Resume"];
-  const [page, setPage] = useState(0);
+  const {
+    generatedPrompts,
+  } = useContext(Context);
 
+  const [videoChunks, setVideoChunks] = useState<string[]>([]);
+  const questions = generatedPrompts.filter((question) => question.questionType !== "Greeting")
+
+  const [page, setPage] = useState(0);
   const [selected, setSelected] = useState(-1);
 
   const [userRatings, setUserRatings] = useState<UserRatings[]>(
@@ -82,7 +82,7 @@ export default function Complete() {
         <div className="pb-0 space-y-2 p-6">
           <div className="flex items-center justify-between">
             <Badge variant="outline" className="text-sm font-medium px-3 py-1">
-              {category[page]}
+              {questions[page].questionType}
             </Badge>
             <div className="flex flex-row gap-2">
               <TooltipProvider>
@@ -107,7 +107,7 @@ export default function Complete() {
             </div>
           </div>
           <h2 className="sm:text-2xl text-l font-bold">
-            Q{page + 1}: {questions[page]}
+            Q{page + 1}: {questions[page].questionPrompt}
           </h2>
         </div>
 
