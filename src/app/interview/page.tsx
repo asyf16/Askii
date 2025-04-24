@@ -16,6 +16,7 @@ import { PhoneMissed, Pause, Captions, Info, User } from "lucide-react";
 import { useGenerateVoice } from "../../hooks/useGenerateVoice";
 import { Context } from "@/lib/ContextProvider";
 import { questionIndexGetLS, genPromptsGetLS } from "@/lib/ContextProvider";
+import { InterviewVideoHandle } from "./interview-video";
 
 const videoConstraints = {
   width: 640,
@@ -32,14 +33,23 @@ export default function Interview() {
   } = useContext(Context);
 
   const webcamRef = useRef(null);
+  const videoRef = useRef<InterviewVideoHandle>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const [recording, setRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
+  const [videoFile, setVideoFile] = useState<Blob | null>(null);
   const [currentCaption, setCurrentCaption] = useState<string>("");
   const [useCaption, setUseCaption] = useState<boolean>(true);
 
   const { handleTextToSpeech, audioFinished } = useGenerateVoice();
+
+  const handlePause = () => {
+    videoRef.current?.pause();
+  };
+  const handlePlay = () => {
+    videoRef.current?.play();
+  };
 
   useEffect(() => {
     setQuestionIndex(questionIndexGetLS());
@@ -50,6 +60,7 @@ export default function Interview() {
     if (questionIndex < generatedPrompts.length) {
       handleTextToSpeech(generatedPrompts[questionIndex].questionPrompt);
       setCurrentCaption(generatedPrompts[questionIndex].questionPrompt);
+      handlePlay();
     }
   }, [questionIndex]);
 
@@ -57,25 +68,23 @@ export default function Interview() {
     // Start recording when TTS finishes
     if (audioFinished) {
       if (questionIndex === 0) {
-        setQuestionIndex(questionIndex + 1);
+        setQuestionIndex(questionIndex+1);
       } else {
         handleStartRecording();
       }
     }
   }, [audioFinished]);
 
-  const handleStartRecording = React.useCallback(() => {
+  const handleStartRecording = () => {
     // Start recording
     setRecording(true);
-    mediaRecorderRef.current = new MediaRecorder(webcamRef.current.stream, {
-      mimeType: "video/webm",
-    });
-    mediaRecorderRef.current.addEventListener(
-      "dataavailable",
-      handleDataAvailable
-    );
-    mediaRecorderRef.current.start();
-  }, [webcamRef, setRecording, mediaRecorderRef]);
+    handlePause();
+    const mediaRecorder = new MediaRecorder(webcamRef.current.stream);
+    mediaRecorder.ondataavailable = (event) => {
+      setVideoFile(event.data);
+    };
+    mediaRecorder.start();
+  };
 
   const handleDataAvailable = React.useCallback(
     (event: BlobEvent) => {
@@ -95,12 +104,15 @@ export default function Interview() {
     }
   }, [recordedChunks]);
 
-  const handleStopRecording = React.useCallback(() => {
+  const handleStopRecording = async () => {
+    // if (!videoFile) return;
+    setRecording(false);
+
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setRecording(false);
     }
-  }, [mediaRecorderRef, webcamRef, setRecording]);
+  };
 
   return (
     <div className="w-screen h-[100vh] flex flex-col">
@@ -129,7 +141,7 @@ export default function Interview() {
 
       <div className="h-full w-[100vw] flex flex-col md:flex-row gap-2 bg-zinc-900 justify-center items-center px-2">
         <div className="w-full h-[35%] md:h-[60%] bg-white rounded-md">
-          <InterviewVideo src={"/assets/interviewer.webm"} />
+          <InterviewVideo ref={videoRef} src={"/assets/interviewer.webm"} />
         </div>
         <div className="w-full md:w-full h-[35%] md:h-[60%] bg-zinc-500 rounded-md relative">
           <User className="absolute h-24 w-24 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white opacity-50 z-0" />
@@ -191,7 +203,7 @@ export default function Interview() {
             <Pause />
           </Button>
           <h1
-            className={`text-xs ${recording ? "text-zinc-500" : "text-white"}`}
+            className={`text-xs ${!recording ? "text-zinc-500" : "text-white"}`}
           >
             Finish Answer
           </h1>

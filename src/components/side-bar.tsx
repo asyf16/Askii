@@ -1,4 +1,4 @@
-import { Home, BarChart, Settings, HelpCircle, MessageCircleQuestion, ScrollText } from "lucide-react"
+import { Home, BarChart, BadgeInfo, MessageCircleQuestion, ScrollText, LogOut } from "lucide-react"
 import Link from "next/link"
 import {
   Sidebar,
@@ -41,16 +41,8 @@ export function AppSidebar({ setOpenDialog }: SidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/dashboard?page=help">
-                <HelpCircle className="ml-2"/>
+                <BadgeInfo className="ml-2"/>
                 <span>Help</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/dashboard?page=settings">
-                <Settings className="ml-2"/>
-                <span>Settings</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -60,6 +52,14 @@ export function AppSidebar({ setOpenDialog }: SidebarProps) {
                 <MessageCircleQuestion className="ml-2 "/>
                 <span>Start Interview</span>
                 </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <a href="/auth/logout">
+                <LogOut className="ml-2"/>
+                <span>Log out</span>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
