@@ -17,6 +17,7 @@ import { useGenerateVoice } from "../../hooks/useGenerateVoice";
 import { Context } from "@/lib/ContextProvider";
 import { questionIndexGetLS, genPromptsGetLS } from "@/lib/ContextProvider";
 import { InterviewVideoHandle } from "./interview-video";
+import { useFileUpload } from "@/hooks/useFileUpload";
 
 const videoConstraints = {
   width: 640,
@@ -32,7 +33,7 @@ export default function Interview() {
     setGeneratedPrompts,
   } = useContext(Context);
 
-  const webcamRef = useRef(null);
+  const webcamRef = useRef<Webcam>(null);
   const videoRef = useRef<InterviewVideoHandle>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
@@ -43,6 +44,7 @@ export default function Interview() {
   const [useCaption, setUseCaption] = useState<boolean>(true);
 
   const { handleTextToSpeech, audioFinished } = useGenerateVoice();
+  const uploadFile = useFileUpload();
 
   const handlePause = () => {
     videoRef.current?.pause();
@@ -65,7 +67,6 @@ export default function Interview() {
   }, [questionIndex]);
 
   useEffect(() => {
-    // Start recording when TTS finishes
     if (audioFinished) {
       if (questionIndex === 0) {
         setQuestionIndex(questionIndex+1);
@@ -76,7 +77,8 @@ export default function Interview() {
   }, [audioFinished]);
 
   const handleStartRecording = () => {
-    // Start recording
+    if (!webcamRef.current?.stream) return;
+    
     setRecording(true);
     handlePause();
     const mediaRecorder = new MediaRecorder(webcamRef.current.stream);
@@ -86,21 +88,22 @@ export default function Interview() {
     mediaRecorder.start();
   };
 
-  const handleDataAvailable = React.useCallback(
-    (event: BlobEvent) => {
-      if (event.data.size > 0) {
-        setRecordedChunks((prev) => [...prev, event.data]);
-      }
-    },
-    [setRecordedChunks]
-  );
-
-  const handleSaveVideo = React.useCallback(() => {
+  const handleSaveVideo = React.useCallback(async () => {
     if (recordedChunks.length) {
-      const chunkUrls = recordedChunks.map((chunk) =>
-        URL.createObjectURL(chunk)
-      );
-      localStorage.setItem("videoChunks", JSON.stringify(chunkUrls));
+      for (const chunk of recordedChunks) {
+        const file = new File([chunk], `interview-chunk-${Date.now()}.webm`, { type: 'video/webm' });
+        
+        try {
+          const result = await uploadFile(file.name, file);
+          if (result.success) {
+            console.log('Chunk uploaded successfully:', result.url);
+          } else {
+            console.error('Failed to upload chunk');
+          }
+        } catch (error) {
+          console.error('Error uploading chunk:', error);
+        }
+      }
     }
   }, [recordedChunks]);
 
