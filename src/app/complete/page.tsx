@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useSearchParams } from "next/navigation";
 import { Context } from "@/lib/ContextProvider";
+import { genPromptsGetLS } from "@/lib/ContextProvider";
 
 interface UserRatings {
   notes?: string;
@@ -30,10 +31,17 @@ interface UserRatings {
 export default function Complete() {
   const searchParams = useSearchParams();
   const time = searchParams.get("time");
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
-    generatedPrompts,
+    generatedPrompts, setGeneratedPrompts
   } = useContext(Context);
+
+  useEffect(() => {
+    const prompts = genPromptsGetLS();
+    setGeneratedPrompts(prompts);
+    setIsLoading(false);
+  }, []);
 
   const [videoChunks, setVideoChunks] = useState<string[]>([]);
   const questions = generatedPrompts.filter((question) => question.questionType !== "Greeting")
@@ -69,9 +77,28 @@ export default function Complete() {
     });
   };
 
+  const handleNextPage = () => {
+    if (page === questions.length - 1) {
+      window.location.href =
+        "/dashboard";
+    } else {
+      setPage(page + 1);
+    }
+  }
+
   useEffect(() => {
     setSelected(userRatings[page]?.rating ?? -1);
   }, [page, userRatings]);
+
+  if (isLoading || !questions.length) {
+    return (
+      <div className="flex flex-col justify-center w-full items-center px-4">
+        <div className="max-w-4xl my-8 p-6">
+          <p>Loading questions...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col justify-center w-full items-center px-4">
@@ -132,10 +159,9 @@ export default function Complete() {
               variant="outline"
               className={`py-6 bg-red-100 hover:bg-red-200 text-red-700 border-red-300
               dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-300 dark:border-red-800
-              ${
-                selected === 0 &&
+              ${selected === 0 &&
                 "ring-2 ring-red-500 dark:ring-red-400 bg-red-200 dark:bg-red-800/50 font-semibold"
-              }
+                }
             `}
               size="lg"
               onClick={() => {
@@ -149,10 +175,9 @@ export default function Complete() {
               variant="outline"
               className={`py-6 bg-amber-100 hover:bg-amber-200 text-amber-700 border-amber-300
               dark:bg-amber-900/30 dark:hover:bg-amber-800/50 dark:text-amber-300 dark:border-amber-600/50
-              ${
-                selected === 1 &&
+              ${selected === 1 &&
                 "ring-2 ring-amber-500 dark:ring-amber-400 bg-amber-200 dark:bg-amber-800/50 font-semibold"
-              }
+                }
             `}
               size="lg"
               onClick={() => {
@@ -166,10 +191,9 @@ export default function Complete() {
               variant="outline"
               className={`py-6 bg-green-100 hover:bg-green-200 text-green-700 border-green-300 
               dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-300 dark:border-green-800
-              ${
-                selected === 2 &&
+              ${selected === 2 &&
                 "ring-2 ring-green-500 dark:ring-green-400 bg-green-200 dark:bg-green-800/50 font-semibold"
-              }
+                }
             `}
               size="lg"
               onClick={() => {
@@ -193,27 +217,15 @@ export default function Complete() {
             <ArrowLeft className="h-4 w-4" />
             Previous
           </Button>
-          {page >= videoChunks.length - 1 ? (
             <Button
               className="bg-foreground hover:bg-background border border-border hover:text-foreground text-background"
               size="lg"
               disabled={selected === -1}
-              onClick={() => setPage(0)}
+              onClick={handleNextPage}
             >
-              Finish
+              {page >= questions.length - 1 ? "Finish" : "Next"}
               <ArrowRight className="h-4 w-4" />
             </Button>
-          ) : (
-            <Button
-              className="bg-foreground hover:bg-background border border-border hover:text-foreground text-background"
-              size="lg"
-              disabled={selected === -1}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </div>
     </div>
