@@ -35,11 +35,10 @@ export default function Interview() {
 
   const webcamRef = useRef<Webcam>(null);
   const videoRef = useRef<InterviewVideoHandle>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
 
   const [recording, setRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
-  const [videoFile, setVideoFile] = useState<Blob | null>(null);
   const [currentCaption, setCurrentCaption] = useState<string>("");
   const [useCaption, setUseCaption] = useState<boolean>(true);
 
@@ -69,53 +68,86 @@ export default function Interview() {
   useEffect(() => {
     if (audioFinished) {
       if (questionIndex === 0) {
-        setQuestionIndex(questionIndex+1);
+        setQuestionIndex(questionIndex + 1);
       } else {
         handleStartRecording();
       }
     }
   }, [audioFinished]);
 
-  const handleStartRecording = () => {
-    if (!webcamRef.current?.stream) return;
+  const handleDataAvailable = React.useCallback(
+    async ({ data }: { data: Blob }) => {
+      const file = new File([data], `interview-chunk-${Date.now()}.webm`, { type: 'video/webm' });
+
+      try {
+        const result = await uploadFile(file.name, file);
+        if (result) {
+          console.log('Chunk uploaded successfully:', result.url);
+          
+          // Get existing videos from localStorage and ensure it's a valid array
+          let currentVideoUrls: string[] = [];
+          try {
+            const stored = localStorage.getItem("videoChunks");
+            if (stored) {
+              currentVideoUrls = JSON.parse(stored);
+              if (!Array.isArray(currentVideoUrls)) {
+                currentVideoUrls = [];
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing stored videos:", e);
+            currentVideoUrls = [];
+          }
+
+          const updatedUrls = [...currentVideoUrls, result.url];
+          localStorage.setItem("videoChunks", JSON.stringify(updatedUrls));
+          console.log("Updated video URLs:", updatedUrls);
+        } else {
+          console.error('Failed to upload chunk');
+        }
+      } catch (error) {
+        console.error('Error uploading chunk:', error);
+      }
+
+      if (data.size > 0) {
+        setRecordedChunks(prev => {
+          const newChunks = [...prev, data];
+          console.log("New chunks length:", newChunks.length);
+          return newChunks;
+        });
+      }
+    },
+    [setRecordedChunks, uploadFile]
+  );
+
+  const handleStartRecording = React.useCallback(() => {
+    if (!webcamRef.current?.stream) {
+      console.error("No webcam stream available");
+      return;
+    }
     
     setRecording(true);
-    handlePause();
-    const mediaRecorder = new MediaRecorder(webcamRef.current.stream);
-    mediaRecorder.ondataavailable = (event) => {
-      setVideoFile(event.data);
-    };
+    const mediaRecorder = new MediaRecorder(webcamRef.current.stream, {
+      mimeType: "video/webm"
+    });
+    mediaRecorderRef.current = mediaRecorder;
+    
+    mediaRecorder.addEventListener(
+      "dataavailable",
+      handleDataAvailable
+    );
     mediaRecorder.start();
-  };
+    handlePause();
+  }, [webcamRef, setRecording, mediaRecorderRef, handleDataAvailable]);
 
-  const handleSaveVideo = React.useCallback(async () => {
-    if (recordedChunks.length) {
-      for (const chunk of recordedChunks) {
-        const file = new File([chunk], `interview-chunk-${Date.now()}.webm`, { type: 'video/webm' });
-        
-        try {
-          const result = await uploadFile(file.name, file);
-          if (result.success) {
-            console.log('Chunk uploaded successfully:', result.url);
-          } else {
-            console.error('Failed to upload chunk');
-          }
-        } catch (error) {
-          console.error('Error uploading chunk:', error);
-        }
-      }
-    }
-  }, [recordedChunks]);
-
-  const handleStopRecording = async () => {
-    // if (!videoFile) return;
-    setRecording(false);
-
+  const handleStopRecording = React.useCallback(() => {
     if (mediaRecorderRef.current) {
+      // Request final data before stopping
+      mediaRecorderRef.current.requestData();
       mediaRecorderRef.current.stop();
       setRecording(false);
     }
-  };
+  }, [mediaRecorderRef, webcamRef, setRecording]);
 
   return (
     <div className="w-screen h-[100vh] flex flex-col">
@@ -197,7 +229,6 @@ export default function Interview() {
               handleStopRecording();
               setQuestionIndex(questionIndex + 1);
               if (questionIndex + 1 >= generatedPrompts.length) {
-                handleSaveVideo();
                 window.location.href =
                   "/complete?time=" + new Date().toISOString();
               }

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 const GENAI_API_KEY = process.env.GEMINI_API_KEY || "";
 
 export async function POST(req: Request) {
-  const { behavorial, resume, technical, jobTitle } = await req.json();
+  const { behavorial, resume, technical, jobTitle, jobDescription, resumeDescription } = await req.json();
 
   if ((!behavorial && !resume && !technical) || !jobTitle) {
     return NextResponse.json(
@@ -12,6 +12,9 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
+
+  const description = jobDescription ? `The job description is: ${jobDescription}.` : "";
+  const resumePDF = resumeDescription && resume ? `The interviewee's resume is: ${resumeDescription} generate specific resume questions based on the resume.` : "";
 
   try {
     const google_AI = new GoogleGenerativeAI(GENAI_API_KEY);
@@ -40,7 +43,7 @@ export async function POST(req: Request) {
         },
       },
     });
-    const AI_prompt = `You are an interviewer for a ${jobTitle} role. Please come up with ${behavorial} behavorial interview questions, ${resume} resume interview questions, and ${technical} technical interview questions. Each question should be less than 2000 characters. Try not to ask a question you have asked before.`;
+    const AI_prompt = `You are an interviewer for a ${jobTitle} role. ${description}. ${resumePDF}. Please come up with ${behavorial} behavorial interview questions, ${resume} resume interview questions, and ${technical} technical interview questions. Each question should be less than 2000 characters. Do not ask a question you have asked before.`;
     const result = await AI_model.generateContent([AI_prompt]);
 
     if (result && result.response) {

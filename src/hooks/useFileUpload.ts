@@ -12,7 +12,6 @@ export function useFileUpload() {
         });
         
         if (upload.ok) {
-            const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME;
             const fileUrl = `https://storage.cloud.google.com/askii-vid/${filename}`;
             return { success: true, url: fileUrl };
         }

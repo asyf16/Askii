@@ -56,7 +56,12 @@ export default function Complete() {
   useEffect(() => {
     const storedChunks = localStorage.getItem("videoChunks");
     if (storedChunks) {
-      setVideoChunks(JSON.parse(storedChunks));
+      try {
+        const parsedChunks = JSON.parse(storedChunks);
+        setVideoChunks(parsedChunks);
+      } catch (error) {
+        console.error("Error parsing saved videos:", error);
+      }
     }
   }, []);
 
