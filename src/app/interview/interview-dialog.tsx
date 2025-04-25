@@ -27,6 +27,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { Context } from "@/lib/ContextProvider";
 import { GeneratedQuestion } from "@/types/types";
+import pdfToText from "react-pdftotext";
 
 interface InterviewDialogProps {
   openDialog: boolean;
@@ -44,7 +45,7 @@ export default function InterviewDialog({
   const [technicalQuestions, setTechnicalQuestions] = useState("0");
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [jobTitle, setJobTitle] = useState("");
-  const [resume, setResume] = useState<File | null>(null);
+  const [resume, setResume] = useState("");
   const [jobDescription, setJobDescription] = useState("");
 
   const fetchQuestions = async (
@@ -52,6 +53,8 @@ export default function InterviewDialog({
     resume: string,
     technical: string,
     jobTitle: string,
+    jobDescription: string,
+    resumeDescription: string,
     interviewerName?: string
   ) => {
     try {
@@ -60,7 +63,7 @@ export default function InterviewDialog({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ behavorial, resume, technical, jobTitle }),
+        body: JSON.stringify({ behavorial, resume, technical, jobTitle, jobDescription, resumeDescription }),
       });
       const json = await response.json();
       const parsedJSON = JSON.parse(json);
@@ -75,6 +78,7 @@ export default function InterviewDialog({
 
       setGeneratedPrompts(parsedJSON);
       setQuestionIndex(0);
+      localStorage.setItem("videoChunks", JSON.stringify([]));
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
@@ -88,11 +92,14 @@ export default function InterviewDialog({
     );
   }, [behavioralQuestions, resumeQuestions, technicalQuestions]);
 
-  const handleResumeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setResume(e.target.files[0]);
-    }
-  };
+function extractText(e: ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  pdfToText(file)
+    .then((text) => {setResume(text)})
+    .catch((error) => console.error("Failed to extract text from pdf"));
+}
 
   return (
     <Drawer open={openDialog} onOpenChange={onOpenChange}>
@@ -197,7 +204,7 @@ export default function InterviewDialog({
                   id="resume"
                   type="file"
                   accept=".pdf"
-                  onChange={handleResumeChange}
+                  onChange={extractText}
                 />
               </div>
               <div className="space-y-2">
@@ -240,11 +247,15 @@ export default function InterviewDialog({
                   if (totalQuestions === 0) {
                     e.preventDefault();
                   } else {
+                    
                     fetchQuestions(
                       behavioralQuestions,
                       resumeQuestions,
                       technicalQuestions,
-                      jobTitle
+                      jobTitle,
+                      jobDescription,
+                      resume,
+                      interviewName
                     );
                   }
                 }}

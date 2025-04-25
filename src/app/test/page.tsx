@@ -1,80 +1,70 @@
-"use client"
+"use client";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import { useState } from "react";
 
+export default function Test() {
+  const uploadFile = useFileUpload();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle");
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
 
-export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
-  };
-
-  const handleUpload = async () => {
+  const handleFileSelect = async (file: File | null) => {
     if (!file) return;
-
-    setUploading(true);
-
+    
+    setSelectedFile(file);
+    setUploadStatus("idle");
+    setFileUrl(null);
+    
     try {
-      // Step 1: Get presigned URL from backend
-      const res = await fetch("/api/s3", {
-        method: "POST",
-        body: JSON.stringify({ filename: file.name }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to get presigned URL");
+      const result = await uploadFile(file.name, file);
+      if (result.success) {
+        setUploadStatus("success");
+        setFileUrl(result.url);
+      } else {
+        setUploadStatus("error");
       }
-
-      const { url, fields } = await res.json();
-
-      // Step 2: Upload the video to S3
-      const formData = new FormData();
-      Object.entries(fields).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-      formData.append("file", file);
-
-      const uploadRes = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error("Failed to upload video");
-      }
-
-      // Step 3: Get the video URL from the S3 bucket (assuming public read)
-      setVideoUrl(`${url}/${fields.key}`);
     } catch (error) {
-      console.error("Error during file upload", error);
-    } finally {
-      setUploading(false);
+      setUploadStatus("error");
     }
   };
 
   return (
-    <div>
-      <h1>Upload Video</h1>
-      <input type="file" accept="video/*" onChange={handleFileChange} />
-      <button onClick={handleUpload} disabled={uploading}>
-        {uploading ? "Uploading..." : "Upload"}
-      </button>
-      {videoUrl && (
-        <div>
-          <h2>Uploaded Video</h2>
-          <video controls>
-            <source src={videoUrl} />
-            Your browser does not support the video tag.
-          </video>
+    <div className="p-4">
+      <input
+        type="file"
+        onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+        className="mb-4"
+      />
+      {uploadStatus === "success" && (
+        <div className="space-y-2">
+          <p className="text-green-600">File uploaded successfully!</p>
+          {fileUrl && (
+            <div className="mt-4">
+              <p className="font-semibold">File URL:</p>
+              <a 
+                href={fileUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline break-all"
+              >
+                {fileUrl}
+              </a>
+              <div className="mt-2">
+                <img 
+                  src={fileUrl} 
+                  alt="Uploaded file preview" 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
+      )}
+      {uploadStatus === "error" && (
+        <p className="text-red-600">Error uploading file. Please try again.</p>
       )}
     </div>
   );
