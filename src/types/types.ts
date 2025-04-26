@@ -11,6 +11,14 @@ export interface SidebarProps {
   setOpenDialog: (open: boolean) => void;
 }
 
+export interface Question {
+  response: string;
+  rating: string;
+  notes?: string;
+  prompt: string;
+  category: string;
+}
+
 export interface SessionType {
   id: string;
   date: string;

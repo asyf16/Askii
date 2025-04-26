@@ -91,6 +91,11 @@ export default function Complete() {
     }
   }
 
+  const handleFinish = () => {
+    window.location.href = "/dashboard";
+  }
+
+
   useEffect(() => {
     setSelected(userRatings[page]?.rating ?? -1);
   }, [page, userRatings]);

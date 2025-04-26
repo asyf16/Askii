@@ -58,23 +58,18 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    const { auth0_id, date } = await req.json();
+    const { sessionId, rating, notes, prompt, response, category } = await req.json();
+    const userNotes = notes ?? "";
 
-    const user = await prisma.user.findUnique({
-        where: { auth0_id },
-    });
-
-    if (!user) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const userId = user.id;
-
-    const session = await prisma.session.create({
+    const question = await prisma.question.create({
         data: {
-            date: new Date(date),
-            user: { connect: { id: userId } },
+            session: { connect: { id: sessionId } },
+            prompt,
+            rating,
+            response,
+            category,
+            notes: userNotes
         },
     });
-    return NextResponse.json(session);
+    return NextResponse.json(question);
 }
