@@ -22,6 +22,8 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Context } from "@/lib/ContextProvider";
 import { genPromptsGetLS } from "@/lib/ContextProvider";
+import { submitDB } from "./submitDB";
+import { useUser } from "@auth0/nextjs-auth0";
 
 interface UserRatings {
   notes?: string;
@@ -32,6 +34,8 @@ export default function Complete() {
   const searchParams = useSearchParams();
   const time = searchParams.get("time");
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useUser();
+  const auth0_id = user?.sub;
 
   const {
     generatedPrompts, setGeneratedPrompts
@@ -92,9 +96,16 @@ export default function Complete() {
   }
 
   const handleFinish = () => {
+    const transformedQuestions = questions.map((q, index) => ({
+      ...q,
+      rating: userRatings[index].rating.toString(),
+      notes: userRatings[index].notes || "",
+      prompt: q.questionPrompt,
+      category: q.questionType
+    }));
+    submitDB(transformedQuestions, auth0_id ?? "", time ? new Date(time).toLocaleString() : "Unknown", videoChunks);
     window.location.href = "/dashboard";
   }
-
 
   useEffect(() => {
     setSelected(userRatings[page]?.rating ?? -1);

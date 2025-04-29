@@ -12,7 +12,6 @@ export interface SidebarProps {
 }
 
 export interface Question {
-  response: string;
   rating: string;
   notes?: string;
   prompt: string;
