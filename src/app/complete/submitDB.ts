@@ -1,6 +1,6 @@
 import { Question } from "@/types/types";
 
-export const submitDB = async (questions: Question[], auth0_id: string, date: string, videoUrl: string[]) => {
+export const submitDB = async (questions: Question[], auth0_id: string, date: string, audioUrl: string[]) => {
     try {
         const response = await fetch("/api/session", {
             method: "POST",
@@ -20,7 +20,7 @@ export const submitDB = async (questions: Question[], auth0_id: string, date: st
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ url: videoUrl[index] })
+                    body: JSON.stringify({ url: audioUrl[index] })
                 });
                 const sttData = await sttResponse.json();
                 await fetch("/api/question", {

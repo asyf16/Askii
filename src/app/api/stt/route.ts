@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
         const deepgram = createClient(DEEPGRAM_API_KEY);
         const { result, error } = await deepgram.listen.prerecorded.transcribeUrl(
         {
-          url,
+          url: url,
         },
         {
           model: "nova-3", 

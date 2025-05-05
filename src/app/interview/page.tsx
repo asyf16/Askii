@@ -36,6 +36,7 @@ export default function Interview() {
   const webcamRef = useRef<Webcam>(null);
   const videoRef = useRef<InterviewVideoHandle>(null);
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
+  const audioRecorderRef = useRef<MediaRecorder | null>(null);
 
   const [recording, setRecording] = useState(false);
   const [currentCaption, setCurrentCaption] = useState<string>("");
@@ -122,6 +123,36 @@ export default function Interview() {
       handleDataAvailable
     );
     mediaRecorder.start();
+
+    const audioTracks = webcamRef.current.stream.getAudioTracks();
+    const audioStream = new MediaStream(audioTracks);
+    const audioRecorder = new MediaRecorder(audioStream, { mimeType: "audio/webm" });
+    audioRecorderRef.current = audioRecorder;
+
+    audioRecorder.addEventListener("dataavailable", async ({ data }) => {
+      const audioFile = new File([data], `audio-${Date.now()}.webm`, { type: "audio/webm" });
+      const result = await uploadFile(audioFile.name, audioFile);
+      if (result) {
+        console.log('Audio uploaded successfully:', result.url);
+
+        let currentAudioUrls: string[] = [];
+
+        const stored = localStorage.getItem("audioChunks");
+        if (stored) {
+          currentAudioUrls = JSON.parse(stored);
+          if (!Array.isArray(currentAudioUrls)) {
+            currentAudioUrls = [];
+          }
+        }
+        const updatedUrls = [...currentAudioUrls, result.url];
+        localStorage.setItem("videoChunks", JSON.stringify(updatedUrls));
+        console.log("Updated video URLs:", updatedUrls);
+      } else {
+        console.error('Failed to upload chunk');
+      }
+    });
+    audioRecorder.start();
+
     handlePause();
   }, [webcamRef, setRecording, mediaRecorderRef, handleDataAvailable]);
 
@@ -130,6 +161,11 @@ export default function Interview() {
       mediaRecorderRef.current.stop();
       setRecording(false);
     }
+
+    if (audioRecorderRef.current) {
+      audioRecorderRef.current.stop();
+    }
+    setRecording(false);
   }, [mediaRecorderRef, webcamRef, setRecording]);
 
   return (
@@ -217,9 +253,17 @@ export default function Interview() {
                     mimeType: "video/webm"
                   });
                   mediaRecorderRef.current = mediaRecorder;
+
+                  const audioTracks = webcamRef.current.stream.getAudioTracks();
+                  const audioStream = new MediaStream(audioTracks);
+                  const audioRecorder = new MediaRecorder(audioStream, { mimeType: "audio/webm" });
+                  audioRecorderRef.current = audioRecorder;
+
                   mediaRecorder.start();
+                  audioRecorder.start();
                   setTimeout(() => {
                     mediaRecorder.stop();
+                    audioRecorder.stop();
                     window.location.href = "/complete?time=" + new Date().toISOString();
                   }, 500);
                 } else {

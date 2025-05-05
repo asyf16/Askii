@@ -48,6 +48,7 @@ export default function Complete() {
   }, []);
 
   const [videoChunks, setVideoChunks] = useState<string[]>([]);
+  const [audioChunks, setAudioChunks] = useState<string[]>([]);
   const questions = generatedPrompts.filter((question) => question.questionType !== "Greeting")
 
   const [page, setPage] = useState(0);
@@ -69,6 +70,18 @@ export default function Complete() {
     }
   }, []);
 
+  useEffect(() => {
+    const storedChunks = localStorage.getItem("audioChunks");
+    if (storedChunks) {
+      try {
+        const parsedChunks = JSON.parse(storedChunks);
+        setAudioChunks(parsedChunks);
+      } catch (error) {
+        console.error("Error parsing saved videos:", error);
+      }
+    }
+  }, []);
+  
   const handleRatingChange = (rating: number) => {
     setSelected(rating);
     setUserRatings((prev) => {
@@ -103,7 +116,7 @@ export default function Complete() {
       prompt: q.questionPrompt,
       category: q.questionType
     }));
-    submitDB(transformedQuestions, auth0_id ?? "", time ? new Date(time).toLocaleString() : "Unknown", videoChunks);
+    submitDB(transformedQuestions, auth0_id ?? "", time ? new Date(time).toLocaleString() : "Unknown", audioChunks);
     window.location.href = "/dashboard";
   }
 
@@ -242,7 +255,7 @@ export default function Complete() {
               className="bg-foreground hover:bg-background border border-border hover:text-foreground text-background"
               size="lg"
               disabled={selected === -1}
-              onClick={handleNextPage}
+              onClick={page >= questions.length - 1 ? handleFinish : handleNextPage}
             >
               {page >= questions.length - 1 ? "Finish" : "Next"}
               <ArrowRight className="h-4 w-4" />
