@@ -17,16 +17,21 @@ ASKII is an interview practice platform designed to simulate real-world intervie
 - **Backend:** Node.js, API routes for handling questions and responses
 - **Voice Generation:** Google Gemini API for generating personalized interview questions
 - **Video Recording:** MediaRecorder API to record video and audio responses
+- **Cloud Storage:** Recorded videos stored in Google Cloud buckets through pre-signed URLs
 - **Speech-to-Text:** Integrated with Deepgram for speech-to-text and text-to-speech transcription
 - **Authentication:** Auth0 for secure login and session management
 - **State Management:** React Context API and Local storage for managing global state
 - **Database:** PostgreSQL with Prisma ORM for data storage
+
+<img width="1470" alt="image" src="https://github.com/user-attachments/assets/1b5fcab5-bbce-46a0-be1c-4ffeb6c059b3" />
 
 ## Usage
 - **Sign in:** Use your Auth0 account to securely log in and access your personalized interview experience.
 - **Start Interview:** The platform will generate interview questions for you based on your preferences.
 - **Record Responses:** Answer the questions, and the platform will record your video responses and transcribe them using speech-to-text technology.
 - **Track Progress:** View your recorded videos and transcriptions to track your progress.
+
+<img width="1470" alt="image" src="https://github.com/user-attachments/assets/164f1d48-1a9d-4f8e-bc23-997ae0ec55e9" />
 
 ## Getting Started
 
